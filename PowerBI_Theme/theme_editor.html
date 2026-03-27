@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Power BI Theme Editor — Customer360</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; overflow: hidden; background: #f4f6f9; color: #222; }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: #0f4c81;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #sidebar h2 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: 18px 14px 10px;
+    color: #a8c8e8;
+  }
+  #sidebar-search {
+    margin: 0 10px 10px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    font-size: 12px;
+    background: #1a5f99;
+    color: #fff;
+    outline: none;
+    width: calc(100% - 20px);
+  }
+  #sidebar-search::placeholder { color: #7aadcc; }
+  #visual-list {
+    list-style: none;
+    overflow-y: auto;
+    flex: 1;
+    padding-bottom: 12px;
+  }
+  #visual-list li {
+    padding: 9px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    border-left: 3px solid transparent;
+    transition: background .15s, border-color .15s;
+  }
+  #visual-list li:hover { background: #1a5f99; }
+  #visual-list li.active { background: #1f8ac0; border-left-color: #3bbfce; font-weight: 600; }
+  #visual-list li .badge {
+    font-size: 10px;
+    background: #1a5f99;
+    color: #a8c8e8;
+    border-radius: 10px;
+    padding: 1px 6px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  #visual-list li.active .badge { background: #0f4c81; }
+
+  /* ── MAIN CONTENT (settings + JSON) ── */
+  #main { flex: 1; display: flex; overflow: hidden; }
+
+  /* Settings panel placeholder */
+  #settings-panel {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    background: #f4f6f9;
+  }
+  #settings-panel h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f4c81;
+    margin-bottom: 6px;
+  }
+  #settings-panel .subtitle {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 20px;
+  }
+  .placeholder-msg {
+    color: #aaa;
+    font-size: 14px;
+    margin-top: 60px;
+    text-align: center;
+  }
+
+  /* JSON preview placeholder */
+  #json-panel {
+    width: 380px;
+    min-width: 280px;
+    background: #1e1e2e;
+    color: #cdd6f4;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #2a2a3e;
+  }
+  #json-panel-header {
+    padding: 12px 16px;
+    background: #181825;
+    font-size: 12px;
+    color: #89b4fa;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+  }
+  #json-output {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 16px;
+    font-size: 11.5px;
+    font-family: 'Consolas', 'Cascadia Code', monospace;
+    white-space: pre;
+    color: #cdd6f4;
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <h2>Visuals</h2>
+  <input id="sidebar-search" type="text" placeholder="Search visuals…">
+  <ul id="visual-list"></ul>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <section id="settings-panel">
+    <h1 id="panel-title">Select a Visual</h1>
+    <p class="subtitle" id="panel-subtitle">Choose a visual from the sidebar to edit its theme settings.</p>
+    <p class="placeholder-msg" id="panel-placeholder">← Pick a visual to get started</p>
+  </section>
+
+  <aside id="json-panel">
+    <div id="json-panel-header">Live JSON Preview</div>
+    <div id="json-output">{}</div>
+  </aside>
+</div>
+
+<script>
+// ── Visual display names ──
+const VISUAL_LABELS = {
+  "*":                            "Global (All Visuals)",
+  "barChart":                     "Bar Chart",
+  "clusteredBarChart":            "Clustered Bar Chart",
+  "stackedBarChart":              "Stacked Bar Chart",
+  "hundredPercentStackedBarChart":"100% Stacked Bar Chart",
+  "columnChart":                  "Column Chart",
+  "clusteredColumnChart":         "Clustered Column Chart",
+  "stackedColumnChart":           "Stacked Column Chart",
+  "hundredPercentStackedColumnChart": "100% Stacked Column Chart",
+  "lineChart":                    "Line Chart",
+  "areaChart":                    "Area Chart",
+  "stackedAreaChart":             "Stacked Area Chart",
+  "ribbonChart":                  "Ribbon Chart",
+  "waterfallChart":               "Waterfall Chart",
+  "scatterChart":                 "Scatter Chart",
+  "pieChart":                     "Pie Chart",
+  "donutChart":                   "Donut Chart",
+  "treemap":                      "Treemap",
+  "map":                          "Map",
+  "filledMap":                    "Filled Map",
+  "funnel":                       "Funnel",
+  "gauge":                        "Gauge",
+  "card":                         "Card",
+  "multiRowCard":                 "Multi-Row Card",
+  "kpi":                          "KPI",
+  "slicer":                       "Slicer",
+  "tableEx":                      "Table",
+  "matrix":                       "Matrix",
+  "lineClusteredColumnComboChart":"Line & Clustered Column Combo",
+  "lineStackedColumnComboChart":  "Line & Stacked Column Combo",
+  "decompositionTree":            "Decomposition Tree",
+  "shape":                        "Shape",
+  "textbox":                      "Text Box",
+  "image":                        "Image",
+  "actionButton":                 "Button"
+};
+
+// ── Build sidebar from label map ──
+function buildSidebar(filter = "") {
+  const list = document.getElementById("visual-list");
+  list.innerHTML = "";
+  const term = filter.toLowerCase();
+
+  Object.entries(VISUAL_LABELS).forEach(([key, label]) => {
+    if (term && !label.toLowerCase().includes(term) && !key.toLowerCase().includes(term)) return;
+    const li = document.createElement("li");
+    li.dataset.key = key;
+    li.innerHTML = label;
+    if (key === "*") {
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = "global";
+      li.appendChild(badge);
+    }
+    li.addEventListener("click", () => selectVisual(key, label, li));
+    list.appendChild(li);
+  });
+}
+
+function selectVisual(key, label, el) {
+  document.querySelectorAll("#visual-list li").forEach(l => l.classList.remove("active"));
+  el.classList.add("active");
+  document.getElementById("panel-title").textContent = label;
+  document.getElementById("panel-subtitle").textContent = `JSON key: "${key}"`;
+  document.getElementById("panel-placeholder").textContent = "Settings panel coming in next step…";
+  document.getElementById("json-output").textContent = JSON.stringify({ [key]: {} }, null, 2);
+}
+
+// ── Search ──
+document.getElementById("sidebar-search").addEventListener("input", e => buildSidebar(e.target.value));
+
+// ── Init ──
+buildSidebar();
+</script>
+</body>
+</html>
