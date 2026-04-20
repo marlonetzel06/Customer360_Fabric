@@ -192,18 +192,20 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 16px;
+    padding: 8px 14px;
     background: #eaf2fb;
     cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 700;
     color: #0f4c81;
     user-select: none;
+    border-left: 3px solid transparent;
+    transition: border-color .15s, background .15s;
   }
-  .card-header:hover { background: #d6e8f7; }
-  .card-header .arrow { font-size: 10px; transition: transform .2s; }
-  .card-header.open .arrow { transform: rotate(90deg); }
-  .card-body { padding: 12px 16px; display: none; }
+  .card-header:hover { background: #d6e8f7; border-left-color: #1f8ac0; }
+  .card-header.open { border-left-color: #1f8ac0; }
+  .card-header .arrow { font-size: 9px; transition: transform .18s; opacity: .7; }
+  .card-body { padding: 10px 14px; display: none; }
   .card-body.open { display: block; }
   .prop-row {
     display: flex;
@@ -1459,11 +1461,34 @@ function openEditModal(key, label) {
   const settingsPane = document.createElement('div');
   settingsPane.id = 'modal-settings-pane';
 
+  // Expand / Collapse all toolbar
+  const toolbar = document.createElement('div');
+  toolbar.style.cssText = 'display:flex;gap:8px;margin-bottom:12px;align-items:center;';
+  const btnExpandAll = document.createElement('button');
+  btnExpandAll.textContent = 'Expand All';
+  btnExpandAll.style.cssText = 'font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid #1f8ac0;background:#fff;color:#1f8ac0;cursor:pointer;';
+  const btnCollapseAll = document.createElement('button');
+  btnCollapseAll.textContent = 'Collapse All';
+  btnCollapseAll.style.cssText = 'font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid #aaa;background:#fff;color:#555;cursor:pointer;';
+  btnExpandAll.onclick = () => {
+    settingsPane.querySelectorAll('.card-header').forEach(h => { h.classList.add('open'); h.querySelector('.arrow').style.transform='rotate(90deg)'; });
+    settingsPane.querySelectorAll('.card-body').forEach(b => b.classList.add('open'));
+  };
+  btnCollapseAll.onclick = () => {
+    settingsPane.querySelectorAll('.card-header').forEach(h => { h.classList.remove('open'); h.querySelector('.arrow').style.transform=''; });
+    settingsPane.querySelectorAll('.card-body').forEach(b => b.classList.remove('open'));
+  };
+  toolbar.appendChild(btnExpandAll);
+  toolbar.appendChild(btnCollapseAll);
+  settingsPane.appendChild(toolbar);
+
   const cardList = VISUAL_SCHEMA[key] || [];
+  let firstCard = true;
   cardList.forEach(cardName => {
     if (!CARD_DEFS[cardName]) return;
     const data = getCardData(key, cardName);
-    settingsPane.appendChild(buildModalCard(cardName, data, key));
+    settingsPane.appendChild(buildModalCard(cardName, data, key, firstCard));
+    firstCard = false;
   });
   body.appendChild(settingsPane);
 
@@ -1471,18 +1496,29 @@ function openEditModal(key, label) {
 
   if (!isPage) {
     const canvas = document.getElementById('preview-canvas');
-    if (_modalChart) { try{_modalChart.destroy();}catch(e){} _modalChart=null; }
+    destroyChartOnCanvas(canvas);
     _modalChart = renderVisualPreview(key, canvas, true);
   }
 }
 
 let _modalChart = null;
 
+function destroyChartOnCanvas(canvas) {
+  const existing = (typeof Chart !== 'undefined') ? Chart.getChart(canvas) : null;
+  if (existing) { try { existing.destroy(); } catch(e){} }
+  if (_modalChart) { try { _modalChart.destroy(); } catch(e){} _modalChart = null; }
+}
+
+let _refreshTimer = null;
 function refreshModalPreview(key) {
-  const canvas = document.getElementById('preview-canvas');
-  if (!canvas) return;
-  if (_modalChart) { try{_modalChart.destroy();}catch(e){} _modalChart=null; }
-  _modalChart = renderVisualPreview(key, canvas, true);
+  clearTimeout(_refreshTimer);
+  _refreshTimer = setTimeout(() => {
+    const canvas = document.getElementById('preview-canvas');
+    if (!canvas) return;
+    destroyChartOnCanvas(canvas);
+    _modalChart = renderVisualPreview(key, canvas, true);
+  }, 40);
+}
 }
 
 function closeEditModal() {
@@ -1495,20 +1531,21 @@ document.getElementById('modal-overlay').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeEditModal();
 });
 
-function buildModalCard(cardName, data, visualKey) {
+function buildModalCard(cardName, data, visualKey, startOpen) {
   const defs = CARD_DEFS[cardName];
   if (!defs) return document.createDocumentFragment();
 
   const wrap = document.createElement('div');
   wrap.className = 'card';
-  wrap.style.marginBottom = '14px';
+  wrap.style.marginBottom = '10px';
 
   const hdr = document.createElement('div');
-  hdr.className = 'card-header open';
-  hdr.innerHTML = `${cardName} <span class="arrow" style="transform:rotate(90deg)">▶</span>`;
+  hdr.className = startOpen ? 'card-header open' : 'card-header';
+  const cardLabel = cardName.replace(/([A-Z])/g,' $1').replace(/^./,s=>s.toUpperCase());
+  hdr.innerHTML = `${cardLabel} <span class="arrow" style="transform:${startOpen?'rotate(90deg)':''}">▶</span>`;
 
   const body = document.createElement('div');
-  body.className = 'card-body open';
+  body.className = startOpen ? 'card-body open' : 'card-body';
 
   defs.forEach(def => {
     const val = data[def.key] !== undefined ? resolveVal(data[def.key]) : def.def;
@@ -1863,11 +1900,8 @@ function renderVisualPreview(vk, canvas, isModal) {
     ctx.fillText(displayTitle, 6, titleFontSz + 2);
   }
 
-  // ── Series color helper
-  function sc(i) {
-    const base = (i===0 && dpDefaultColor) ? dpDefaultColor : col(i);
-    return hexAlpha(base, dpAlpha > 0 ? dpAlpha : 1);
-  }
+  // ── Series color helper (const to avoid hoisting ambiguity)
+  const sc = (i) => hexAlpha((i===0 && dpDefaultColor) ? dpDefaultColor : col(i), dpAlpha > 0 ? dpAlpha : 1);
 
   const fontSize = isModal ? 11 : 9;
 
@@ -2385,12 +2419,18 @@ function buildGrid(filter) {
 }
 
 // refresh a single grid card after settings change
+let _gridRefreshTimers = {};
 function refreshGridCard(visualKey) {
-  const canvas = document.getElementById('grid-canvas-' + visualKey);
-  if (!canvas) return;
-  if (_gridCharts[visualKey]) { try { _gridCharts[visualKey].destroy(); } catch(e){} }
-  const instance = renderVisualPreview(visualKey, canvas, false);
-  if (instance) _gridCharts[visualKey] = instance;
+  clearTimeout(_gridRefreshTimers[visualKey]);
+  _gridRefreshTimers[visualKey] = setTimeout(() => {
+    const canvas = document.getElementById('grid-canvas-' + visualKey);
+    if (!canvas) return;
+    const existing = (typeof Chart !== 'undefined') ? Chart.getChart(canvas) : null;
+    if (existing) { try { existing.destroy(); } catch(e){} }
+    if (_gridCharts[visualKey]) { try { _gridCharts[visualKey].destroy(); } catch(e){} }
+    const instance = renderVisualPreview(visualKey, canvas, false);
+    _gridCharts[visualKey] = instance || null;
+  }, 40);
 }
 
 // Sync sidebar search to grid
