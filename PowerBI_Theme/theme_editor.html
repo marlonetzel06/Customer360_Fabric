@@ -279,6 +279,7 @@
     color: #cdd6f4;
   }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -345,6 +346,413 @@
 </div>
 
 <script>
+// ── Font options ──
+const FONTS = ['Segoe UI','Segoe UI Semibold','Segoe UI Light','Arial','Calibri','Trebuchet MS','Times New Roman','Courier New','Georgia','Verdana'];
+
+// ── Complete card property definitions (schema-driven) ──
+const CARD_DEFS = {
+  general: [
+    { key:'responsive',    type:'boolean', label:'Responsive',     def:true },
+    { key:'outlineColor',  type:'color',   label:'Outline Color',  def:'#E0E0E0' },
+    { key:'outlineWeight', type:'number',  label:'Outline Weight', def:1, min:0, max:10 },
+    { key:'formatString',  type:'string',  label:'Format String',  def:'' },
+  ],
+  title: [
+    { key:'show',        type:'boolean',  label:'Show Title',    def:true },
+    { key:'text',        type:'string',   label:'Title Text',    def:'' },
+    { key:'fontFamily',  type:'enum',     label:'Font Family',   def:'Segoe UI',  options:FONTS },
+    { key:'fontSize',    type:'number',   label:'Font Size',     def:14, min:6, max:96 },
+    { key:'fontColor',   type:'color',    label:'Font Color',    def:'#0F4C81' },
+    { key:'bold',        type:'boolean',  label:'Bold',          def:true },
+    { key:'italic',      type:'boolean',  label:'Italic',        def:false },
+    { key:'underline',   type:'boolean',  label:'Underline',     def:false },
+    { key:'alignment',   type:'enum',     label:'Alignment',     def:'left', options:['left','center','right'] },
+    { key:'background',  type:'color',    label:'Background',    def:'#FFFFFF' },
+  ],
+  subheader: [
+    { key:'show',       type:'boolean', label:'Show Subtitle', def:false },
+    { key:'text',       type:'string',  label:'Subtitle Text', def:'' },
+    { key:'fontFamily', type:'enum',    label:'Font Family',   def:'Segoe UI', options:FONTS },
+    { key:'fontSize',   type:'number',  label:'Font Size',     def:11, min:6, max:96 },
+    { key:'fontColor',  type:'color',   label:'Font Color',    def:'#666666' },
+    { key:'bold',       type:'boolean', label:'Bold',          def:false },
+    { key:'italic',     type:'boolean', label:'Italic',        def:false },
+    { key:'alignment',  type:'enum',    label:'Alignment',     def:'left', options:['left','center','right'] },
+  ],
+  legend: [
+    { key:'show',       type:'boolean', label:'Show Legend',  def:true },
+    { key:'position',   type:'enum',    label:'Position',     def:'Top', options:['Top','TopCenter','TopRight','Bottom','BottomCenter','BottomRight','Left','LeftCenter','Right','RightCenter'] },
+    { key:'showTitle',  type:'boolean', label:'Show Title',   def:false },
+    { key:'titleText',  type:'string',  label:'Title Text',   def:'' },
+    { key:'labelColor', type:'color',   label:'Label Color',  def:'#444444' },
+    { key:'fontFamily', type:'enum',    label:'Font Family',  def:'Segoe UI', options:FONTS },
+    { key:'fontSize',   type:'number',  label:'Font Size',    def:10, min:6, max:40 },
+    { key:'bold',       type:'boolean', label:'Bold',         def:false },
+    { key:'italic',     type:'boolean', label:'Italic',       def:false },
+    { key:'underline',  type:'boolean', label:'Underline',    def:false },
+  ],
+  categoryAxis: [
+    { key:'show',             type:'boolean', label:'Show Axis',          def:true },
+    { key:'axisType',         type:'enum',    label:'Axis Type',          def:'Categorical', options:['Categorical','Continuous'] },
+    { key:'labelColor',       type:'color',   label:'Label Color',        def:'#666666' },
+    { key:'fontFamily',       type:'enum',    label:'Font Family',        def:'Segoe UI', options:FONTS },
+    { key:'fontSize',         type:'number',  label:'Font Size',          def:11, min:6, max:40 },
+    { key:'bold',             type:'boolean', label:'Bold',               def:false },
+    { key:'italic',           type:'boolean', label:'Italic',             def:false },
+    { key:'showAxisTitle',    type:'boolean', label:'Show Axis Title',    def:false },
+    { key:'titleText',        type:'string',  label:'Title Text',         def:'' },
+    { key:'titleColor',       type:'color',   label:'Title Color',        def:'#666666' },
+    { key:'titleFontFamily',  type:'enum',    label:'Title Font Family',  def:'Segoe UI', options:FONTS },
+    { key:'titleFontSize',    type:'number',  label:'Title Font Size',    def:11, min:6, max:40 },
+    { key:'titleBold',        type:'boolean', label:'Title Bold',         def:false },
+    { key:'gridlineShow',     type:'boolean', label:'Show Gridlines',     def:false },
+    { key:'gridlineColor',    type:'color',   label:'Gridline Color',     def:'#E0E0E0' },
+    { key:'gridlineThickness',type:'number',  label:'Gridline Thickness', def:1, min:1, max:10 },
+    { key:'gridlineStyle',    type:'enum',    label:'Gridline Style',     def:'dashed', options:['solid','dashed','dotted'] },
+    { key:'invertAxis',       type:'boolean', label:'Invert Axis',        def:false },
+    { key:'concatenateLabels',type:'boolean', label:'Concatenate Labels', def:false },
+    { key:'innerPadding',     type:'number',  label:'Inner Padding',      def:0, min:0, max:50 },
+    { key:'switchAxisPosition',type:'boolean',label:'Switch Position',    def:false },
+  ],
+  valueAxis: [
+    { key:'show',            type:'boolean', label:'Show Axis',         def:true },
+    { key:'labelColor',      type:'color',   label:'Label Color',       def:'#666666' },
+    { key:'fontFamily',      type:'enum',    label:'Font Family',       def:'Segoe UI', options:FONTS },
+    { key:'fontSize',        type:'number',  label:'Font Size',         def:11, min:6, max:40 },
+    { key:'bold',            type:'boolean', label:'Bold',              def:false },
+    { key:'italic',          type:'boolean', label:'Italic',            def:false },
+    { key:'showAxisTitle',   type:'boolean', label:'Show Axis Title',   def:false },
+    { key:'titleText',       type:'string',  label:'Title Text',        def:'' },
+    { key:'titleColor',      type:'color',   label:'Title Color',       def:'#666666' },
+    { key:'titleFontFamily', type:'enum',    label:'Title Font Family', def:'Segoe UI', options:FONTS },
+    { key:'titleFontSize',   type:'number',  label:'Title Font Size',   def:11, min:6, max:40 },
+    { key:'gridlineShow',    type:'boolean', label:'Show Gridlines',    def:true },
+    { key:'gridlineColor',   type:'color',   label:'Gridline Color',    def:'#E0E0E0' },
+    { key:'gridlineThickness',type:'number', label:'Gridline Thickness',def:1, min:1, max:10 },
+    { key:'gridlineStyle',   type:'enum',    label:'Gridline Style',    def:'dashed', options:['solid','dashed','dotted'] },
+    { key:'logAxisScale',    type:'boolean', label:'Log Scale',         def:false },
+    { key:'invertAxis',      type:'boolean', label:'Invert Axis',       def:false },
+    { key:'start',           type:'number',  label:'Axis Start',        def:0, min:-1e9, max:1e9 },
+    { key:'end',             type:'number',  label:'Axis End',          def:null, min:-1e9, max:1e9 },
+  ],
+  labels: [
+    { key:'show',              type:'boolean', label:'Show Labels',       def:false },
+    { key:'color',             type:'color',   label:'Label Color',       def:'#FFFFFF' },
+    { key:'fontFamily',        type:'enum',    label:'Font Family',       def:'Segoe UI', options:FONTS },
+    { key:'fontSize',          type:'number',  label:'Font Size',         def:9, min:6, max:40 },
+    { key:'bold',              type:'boolean', label:'Bold',              def:false },
+    { key:'italic',            type:'boolean', label:'Italic',            def:false },
+    { key:'labelDisplayUnits', type:'enum',    label:'Display Units',     def:'0', options:['0','1000','1000000','1000000000','1000000000000'] },
+    { key:'labelPrecision',    type:'number',  label:'Decimal Places',    def:0, min:0, max:10 },
+    { key:'labelPosition',     type:'enum',    label:'Position',          def:'InsideEnd', options:['InsideEnd','InsideCenter','InsideBase','OutsideEnd','Auto'] },
+    { key:'labelStyle',        type:'enum',    label:'Label Style',       def:'category', options:['category','data','both','percent','percentOfTotal'] },
+    { key:'wordWrap',          type:'boolean', label:'Word Wrap',         def:false },
+    { key:'backgroundColor',   type:'color',   label:'Background Color',  def:'#FFFFFF' },
+    { key:'backgroundTransparency', type:'number', label:'Bg Transparency', def:100, min:0, max:100 },
+    { key:'enableBackground',  type:'boolean', label:'Enable Background', def:false },
+  ],
+  dataPoint: [
+    { key:'defaultColor',         type:'color',   label:'Default Color',      def:'#0F4C81' },
+    { key:'fillTransparency',     type:'number',  label:'Fill Transparency',  def:0, min:0, max:100 },
+    { key:'borderShow',           type:'boolean', label:'Show Border',        def:false },
+    { key:'borderColor',          type:'color',   label:'Border Color',       def:'#FFFFFF' },
+    { key:'borderSize',           type:'number',  label:'Border Size',        def:1, min:0, max:10 },
+    { key:'borderTransparency',   type:'number',  label:'Border Transparency',def:0, min:0, max:100 },
+    { key:'borderColorMatchFill', type:'boolean', label:'Border Matches Fill',def:false },
+  ],
+  plotArea: [
+    { key:'transparency', type:'number', label:'Transparency', def:0, min:0, max:100 },
+    { key:'image',        type:'string', label:'Image URL',    def:'' },
+  ],
+  lineStyles: [
+    { key:'strokeWidth',  type:'number',  label:'Line Width',   def:2, min:1, max:10 },
+    { key:'lineStyle',    type:'enum',    label:'Line Style',   def:'solid', options:['solid','dashed','dotted'] },
+    { key:'showMarker',   type:'boolean', label:'Show Markers', def:false },
+    { key:'markerSize',   type:'number',  label:'Marker Size',  def:3, min:1, max:20 },
+    { key:'markerShape',  type:'enum',    label:'Marker Shape', def:'circle', options:['circle','square','diamond','triangle','x'] },
+  ],
+  trend: [
+    { key:'show',       type:'boolean', label:'Show Trend Line', def:false },
+    { key:'lineColor',  type:'color',   label:'Line Color',      def:'#E76F51' },
+    { key:'lineWidth',  type:'number',  label:'Line Width',      def:2, min:1, max:10 },
+    { key:'lineStyle',  type:'enum',    label:'Line Style',      def:'dashed', options:['solid','dashed','dotted'] },
+  ],
+  background: [
+    { key:'show',         type:'boolean', label:'Show Background', def:false },
+    { key:'color',        type:'color',   label:'Color',           def:'#FFFFFF' },
+    { key:'transparency', type:'number',  label:'Transparency',    def:0, min:0, max:100 },
+  ],
+  border: [
+    { key:'show',   type:'boolean', label:'Show Border',    def:false },
+    { key:'color',  type:'color',   label:'Border Color',   def:'#E0E0E0' },
+    { key:'radius', type:'number',  label:'Corner Radius',  def:0, min:0, max:50 },
+    { key:'weight', type:'number',  label:'Border Weight',  def:1, min:1, max:10 },
+  ],
+  shadow: [
+    { key:'show',    type:'boolean', label:'Show Shadow',    def:false },
+    { key:'color',   type:'color',   label:'Shadow Color',   def:'#000000' },
+    { key:'preset',  type:'enum',    label:'Shadow Preset',  def:'BottomRight', options:['TopLeft','Top','TopRight','Left','Center','Right','BottomLeft','Bottom','BottomRight','Custom'] },
+    { key:'shadowBlur',  type:'number', label:'Blur',        def:4, min:0, max:20 },
+    { key:'shadowAngle', type:'number', label:'Angle',       def:45, min:0, max:360 },
+    { key:'shadowDistance', type:'number', label:'Distance', def:2, min:0, max:20 },
+  ],
+  header: [
+    { key:'show',       type:'boolean', label:'Show Header',  def:true },
+    { key:'fontFamily', type:'enum',    label:'Font Family',  def:'Segoe UI Semibold', options:FONTS },
+    { key:'fontSize',   type:'number',  label:'Font Size',    def:12, min:6, max:40 },
+    { key:'fontColor',  type:'color',   label:'Font Color',   def:'#0F4C81' },
+    { key:'bold',       type:'boolean', label:'Bold',         def:true },
+    { key:'italic',     type:'boolean', label:'Italic',       def:false },
+    { key:'underline',  type:'boolean', label:'Underline',    def:false },
+    { key:'background', type:'color',   label:'Background',   def:'#FFFFFF' },
+    { key:'outline',    type:'enum',    label:'Outline',      def:'None', options:['None','Frame','Top','Bottom','Left','Right','TopBottom'] },
+  ],
+  items: [
+    { key:'fontFamily',  type:'enum',   label:'Font Family',  def:'Segoe UI', options:FONTS },
+    { key:'fontSize',    type:'number', label:'Font Size',    def:11, min:6, max:40 },
+    { key:'fontColor',   type:'color',  label:'Font Color',   def:'#333333' },
+    { key:'bold',        type:'boolean',label:'Bold',         def:false },
+    { key:'italic',      type:'boolean',label:'Italic',       def:false },
+    { key:'background',  type:'color',  label:'Background',   def:'#FFFFFF' },
+    { key:'outline',     type:'enum',   label:'Outline Style',def:'Frame', options:['None','Frame','Top','Bottom','Left','Right','TopBottom'] },
+    { key:'padding',     type:'number', label:'Padding',      def:3, min:0, max:20 },
+  ],
+  selection: [
+    { key:'singleSelect',              type:'boolean', label:'Single Select',          def:true },
+    { key:'selectAllCheckboxEnabled',  type:'boolean', label:'Select All Checkbox',    def:false },
+    { key:'selfFilterEnabled',         type:'boolean', label:'Self Filter',            def:false },
+  ],
+  grid: [
+    { key:'outlineColor',          type:'color',   label:'Outline Color',         def:'#E0E0E0' },
+    { key:'outlineWeight',         type:'number',  label:'Outline Weight',        def:1, min:1, max:10 },
+    { key:'gridVertical',          type:'boolean', label:'Vertical Gridlines',    def:false },
+    { key:'gridVerticalColor',     type:'color',   label:'Vertical Color',        def:'#E0E0E0' },
+    { key:'gridHorizontal',        type:'boolean', label:'Horizontal Gridlines',  def:true },
+    { key:'gridHorizontalColor',   type:'color',   label:'Horizontal Color',      def:'#E0E0E0' },
+    { key:'gridHorizontalWeight',  type:'number',  label:'Horizontal Weight',     def:1, min:1, max:10 },
+    { key:'rowPadding',            type:'number',  label:'Row Padding',           def:4, min:0, max:20 },
+    { key:'imageHeight',           type:'number',  label:'Image Height',          def:75, min:10, max:200 },
+  ],
+  columnHeaders: [
+    { key:'fontFamily',  type:'enum',   label:'Font Family',  def:'Segoe UI Semibold', options:FONTS },
+    { key:'fontSize',    type:'number', label:'Font Size',    def:11, min:6, max:40 },
+    { key:'fontColor',   type:'color',  label:'Font Color',   def:'#FFFFFF' },
+    { key:'bold',        type:'boolean',label:'Bold',         def:true },
+    { key:'italic',      type:'boolean',label:'Italic',       def:false },
+    { key:'underline',   type:'boolean',label:'Underline',    def:false },
+    { key:'background',  type:'color',  label:'Background',   def:'#0F4C81' },
+    { key:'outline',     type:'enum',   label:'Outline',      def:'None', options:['None','Frame','Top','Bottom','Left','Right','TopBottom'] },
+    { key:'alignment',   type:'enum',   label:'Alignment',    def:'left', options:['left','center','right'] },
+    { key:'autoSizeColumnWidth', type:'boolean', label:'Auto Width', def:true },
+  ],
+  rowHeaders: [
+    { key:'fontFamily',               type:'enum',   label:'Font Family',          def:'Segoe UI', options:FONTS },
+    { key:'fontSize',                 type:'number', label:'Font Size',            def:11, min:6, max:40 },
+    { key:'fontColor',                type:'color',  label:'Font Color',           def:'#333333' },
+    { key:'bold',                     type:'boolean',label:'Bold',                 def:false },
+    { key:'italic',                   type:'boolean',label:'Italic',               def:false },
+    { key:'background',               type:'color',  label:'Background',           def:'#FFFFFF' },
+    { key:'outline',                  type:'enum',   label:'Outline',              def:'None', options:['None','Frame','Top','Bottom','Left','Right','TopBottom'] },
+    { key:'stepped',                  type:'boolean',label:'Stepped Layout',       def:true },
+    { key:'steppedLayoutIndentation', type:'number', label:'Step Indent',          def:20, min:0, max:100 },
+    { key:'expandCollapse',           type:'boolean',label:'Expand/Collapse',      def:true },
+  ],
+  values: [
+    { key:'fontFamily',     type:'enum',   label:'Font Family',     def:'Segoe UI', options:FONTS },
+    { key:'fontSize',       type:'number', label:'Font Size',       def:11, min:6, max:40 },
+    { key:'fontColor',      type:'color',  label:'Font Color',      def:'#333333' },
+    { key:'bold',           type:'boolean',label:'Bold',            def:false },
+    { key:'italic',         type:'boolean',label:'Italic',          def:false },
+    { key:'background',     type:'color',  label:'Background',      def:'#FFFFFF' },
+    { key:'bandedRowColor', type:'color',  label:'Banded Row Color',def:'#F0F6FB' },
+    { key:'alignment',      type:'enum',   label:'Alignment',       def:'left', options:['left','center','right'] },
+  ],
+  subtotals: [
+    { key:'rowSubtotals',    type:'boolean', label:'Row Subtotals',    def:true },
+    { key:'columnSubtotals', type:'boolean', label:'Column Subtotals', def:true },
+    { key:'fontFamily',      type:'enum',    label:'Font Family',      def:'Segoe UI Semibold', options:FONTS },
+    { key:'fontSize',        type:'number',  label:'Font Size',        def:11, min:6, max:40 },
+    { key:'fontColor',       type:'color',   label:'Font Color',       def:'#0F4C81' },
+    { key:'bold',            type:'boolean', label:'Bold',             def:true },
+    { key:'background',      type:'color',   label:'Background',       def:'#E8F0F7' },
+    { key:'outline',         type:'enum',    label:'Outline',          def:'TopBottom', options:['None','Frame','Top','Bottom','Left','Right','TopBottom'] },
+    { key:'outlineColor',    type:'color',   label:'Outline Color',    def:'#0F4C81' },
+    { key:'perRowLevel',     type:'boolean', label:'Per Row Level',    def:true },
+    { key:'perColumnLevel',  type:'boolean', label:'Per Column Level', def:true },
+  ],
+  total: [
+    { key:'totals',     type:'boolean', label:'Show Totals',  def:true },
+    { key:'fontFamily', type:'enum',    label:'Font Family',  def:'Segoe UI Semibold', options:FONTS },
+    { key:'fontSize',   type:'number',  label:'Font Size',    def:11, min:6, max:40 },
+    { key:'fontColor',  type:'color',   label:'Font Color',   def:'#0F4C81' },
+    { key:'bold',       type:'boolean', label:'Bold',         def:true },
+    { key:'background', type:'color',   label:'Background',   def:'#E8F0F7' },
+    { key:'outline',    type:'enum',    label:'Outline',      def:'Top', options:['None','Frame','Top','Bottom','Left','Right','TopBottom'] },
+    { key:'outlineColor',type:'color',  label:'Outline Color',def:'#0F4C81' },
+  ],
+  gauge: [
+    { key:'arcAngle',         type:'number',  label:'Arc Angle',         def:150, min:60, max:270 },
+    { key:'startAngle',       type:'number',  label:'Start Angle',       def:-150, min:-180, max:0 },
+    { key:'pinNeedle',        type:'boolean', label:'Pin Needle',        def:false },
+    { key:'targetColor',      type:'color',   label:'Target Color',      def:'#E76F51' },
+    { key:'foregroundColor',  type:'color',   label:'Foreground Color',  def:'#1F8AC0' },
+    { key:'backgroundColor',  type:'color',   label:'Background Color',  def:'#E0E0E0' },
+  ],
+  dataLabels: [
+    { key:'show',              type:'boolean', label:'Show Labels',      def:false },
+    { key:'color',             type:'color',   label:'Color',            def:'#0F4C81' },
+    { key:'fontFamily',        type:'enum',    label:'Font Family',      def:'Segoe UI', options:FONTS },
+    { key:'fontSize',          type:'number',  label:'Font Size',        def:24, min:6, max:96 },
+    { key:'bold',              type:'boolean', label:'Bold',             def:false },
+    { key:'labelDisplayUnits', type:'enum',    label:'Display Units',    def:'0', options:['0','1000','1000000','1000000000'] },
+    { key:'labelPrecision',    type:'number',  label:'Decimal Places',   def:0, min:0, max:10 },
+  ],
+  categoryLabels: [
+    { key:'show',       type:'boolean', label:'Show Category',   def:true },
+    { key:'color',      type:'color',   label:'Color',           def:'#666666' },
+    { key:'fontFamily', type:'enum',    label:'Font Family',     def:'Segoe UI', options:FONTS },
+    { key:'fontSize',   type:'number',  label:'Font Size',       def:12, min:6, max:40 },
+    { key:'bold',       type:'boolean', label:'Bold',            def:false },
+    { key:'italic',     type:'boolean', label:'Italic',          def:false },
+  ],
+  sentimentColors: [
+    { key:'increaseFill', type:'color', label:'Increase Color', def:'#2A9D8F' },
+    { key:'decreaseFill', type:'color', label:'Decrease Color', def:'#E76F51' },
+    { key:'totalFill',    type:'color', label:'Total Color',    def:'#0F4C81' },
+  ],
+  innerRadius: [
+    { key:'innerRadiusRatio', type:'number', label:'Inner Radius %', def:50, min:0, max:90 },
+  ],
+  bubbles: [
+    { key:'minBubbleSize', type:'number', label:'Min Bubble Size', def:10, min:1, max:100 },
+    { key:'maxBubbleSize', type:'number', label:'Max Bubble Size', def:40, min:1, max:200 },
+  ],
+  shapes: [
+    { key:'strokeWidth', type:'number',  label:'Line Width',    def:2, min:1, max:10 },
+    { key:'showMarker',  type:'boolean', label:'Show Markers',  def:false },
+    { key:'markerSize',  type:'number',  label:'Marker Size',   def:3, min:1, max:20 },
+  ],
+  wordWrap: [
+    { key:'show', type:'boolean', label:'Word Wrap', def:false },
+  ],
+  indicator: [
+    { key:'show',      type:'boolean', label:'Show Indicator', def:true },
+    { key:'thickness', type:'number',  label:'Thickness',      def:3, min:1, max:10 },
+  ],
+  trendline: [
+    { key:'show',  type:'boolean', label:'Show Trendline',  def:true },
+    { key:'color', type:'color',   label:'Trendline Color', def:'#1F8AC0' },
+  ],
+  goals: [
+    { key:'show',       type:'boolean', label:'Show Goal',   def:true },
+    { key:'fontFamily', type:'enum',    label:'Font Family', def:'Segoe UI', options:FONTS },
+    { key:'fontSize',   type:'number',  label:'Font Size',   def:12, min:6, max:40 },
+    { key:'color',      type:'color',   label:'Color',       def:'#666666' },
+  ],
+  statusGraphic: [
+    { key:'show', type:'boolean', label:'Show Status Graphic', def:true },
+  ],
+  fillPoint: [
+    { key:'show', type:'boolean', label:'Fill Data Points', def:true },
+  ],
+  fill: [
+    { key:'show',         type:'boolean', label:'Show Fill',     def:true },
+    { key:'fillColor',    type:'color',   label:'Fill Color',    def:'#1F8AC0' },
+    { key:'transparency', type:'number',  label:'Transparency',  def:0, min:0, max:100 },
+  ],
+  line: [
+    { key:'show',        type:'boolean', label:'Show Line',     def:false },
+    { key:'strokeColor', type:'color',   label:'Line Color',    def:'#0F4C81' },
+    { key:'strokeWidth', type:'number',  label:'Line Width',    def:1, min:1, max:10 },
+  ],
+  outline: [
+    { key:'show',   type:'boolean', label:'Show Outline',  def:false },
+    { key:'color',  type:'color',   label:'Outline Color', def:'#E0E0E0' },
+    { key:'weight', type:'number',  label:'Weight',        def:1, min:1, max:10 },
+  ],
+  bar: [
+    { key:'show',   type:'boolean', label:'Show Bar',    def:true },
+    { key:'color',  type:'color',   label:'Bar Color',   def:'#1F8AC0' },
+    { key:'weight', type:'number',  label:'Bar Weight',  def:4, min:1, max:10 },
+  ],
+  cardTitle: [
+    { key:'show',       type:'boolean', label:'Show Title',  def:true },
+    { key:'fontFamily', type:'enum',    label:'Font Family', def:'Segoe UI Semibold', options:FONTS },
+    { key:'fontSize',   type:'number',  label:'Font Size',   def:12, min:6, max:40 },
+    { key:'color',      type:'color',   label:'Color',       def:'#0F4C81' },
+  ],
+  imageScaling: [
+    { key:'imageScalingType', type:'enum', label:'Scaling', def:'Fit', options:['Fit','Fill','Normal'] },
+  ],
+  text: [
+    { key:'show',              type:'boolean', label:'Show Text',          def:true },
+    { key:'fontFamily',        type:'enum',    label:'Font Family',        def:'Segoe UI', options:FONTS },
+    { key:'fontSize',          type:'number',  label:'Font Size',          def:12, min:6, max:96 },
+    { key:'fontBold',          type:'boolean', label:'Bold',               def:false },
+    { key:'fontColor',         type:'color',   label:'Font Color',         def:'#FFFFFF' },
+    { key:'alignment',         type:'enum',    label:'H Alignment',        def:'center', options:['left','center','right'] },
+    { key:'verticalAlignment', type:'enum',    label:'V Alignment',        def:'middle', options:['top','middle','bottom'] },
+  ],
+  zoom: [
+    { key:'enableScrollWheelZoom', type:'boolean', label:'Scroll Wheel Zoom', def:true },
+  ],
+  data: [
+    { key:'fontFamily', type:'enum',   label:'Font Family', def:'Segoe UI', options:FONTS },
+    { key:'fontSize',   type:'number', label:'Font Size',   def:12, min:6, max:40 },
+    { key:'fontColor',  type:'color',  label:'Font Color',  def:'#333333' },
+    { key:'bold',       type:'boolean',label:'Bold',        def:false },
+    { key:'italic',     type:'boolean',label:'Italic',      def:false },
+  ],
+  detail: [
+    { key:'show', type:'boolean', label:'Show Detail', def:false },
+  ],
+  target: [
+    { key:'show',       type:'boolean', label:'Show Target',  def:true },
+    { key:'fontFamily', type:'enum',    label:'Font Family',  def:'Segoe UI', options:FONTS },
+    { key:'fontSize',   type:'number',  label:'Font Size',    def:12, min:6, max:40 },
+    { key:'color',      type:'color',   label:'Color',        def:'#666666' },
+  ],
+};
+
+// ── Which cards each visual exposes ──
+const VISUAL_SCHEMA = {
+  '*':                            ['general','title','subheader','background','border','shadow'],
+  barChart:                       ['general','title','subheader','legend','categoryAxis','valueAxis','labels','dataPoint','plotArea','trend','zoom'],
+  clusteredBarChart:              ['general','title','subheader','legend','categoryAxis','valueAxis','labels','dataPoint','plotArea','trend','zoom'],
+  stackedBarChart:                ['general','title','subheader','legend','categoryAxis','valueAxis','labels','dataPoint','plotArea','zoom'],
+  hundredPercentStackedBarChart:  ['general','title','subheader','legend','categoryAxis','valueAxis','labels','dataPoint','plotArea','zoom'],
+  columnChart:                    ['general','title','subheader','legend','categoryAxis','valueAxis','labels','dataPoint','plotArea','trend','zoom'],
+  clusteredColumnChart:           ['general','title','subheader','legend','categoryAxis','valueAxis','labels','dataPoint','plotArea','trend','zoom'],
+  stackedColumnChart:             ['general','title','subheader','legend','categoryAxis','valueAxis','labels','dataPoint','plotArea','zoom'],
+  hundredPercentStackedColumnChart:['general','title','subheader','legend','categoryAxis','valueAxis','labels','dataPoint','plotArea','zoom'],
+  lineChart:                      ['general','title','subheader','legend','categoryAxis','valueAxis','labels','dataPoint','lineStyles','plotArea','trend','zoom'],
+  areaChart:                      ['general','title','subheader','legend','categoryAxis','valueAxis','labels','dataPoint','plotArea','zoom'],
+  stackedAreaChart:               ['general','title','subheader','legend','categoryAxis','valueAxis','labels','dataPoint','plotArea','zoom'],
+  ribbonChart:                    ['general','title','subheader','legend','categoryAxis','valueAxis','labels','dataPoint','plotArea'],
+  waterfallChart:                 ['general','title','subheader','legend','categoryAxis','valueAxis','labels','sentimentColors','plotArea','zoom'],
+  scatterChart:                   ['general','title','subheader','legend','categoryAxis','valueAxis','labels','dataPoint','fillPoint','plotArea','trend','zoom'],
+  pieChart:                       ['general','title','subheader','legend','labels','dataPoint','detail'],
+  donutChart:                     ['general','title','subheader','legend','labels','dataPoint','innerRadius','detail'],
+  treemap:                        ['general','title','subheader','legend','labels','categoryLabels','dataPoint'],
+  map:                            ['general','title','subheader','legend','labels','dataPoint','bubbles'],
+  filledMap:                      ['general','title','subheader','legend','labels','dataPoint'],
+  funnel:                         ['general','title','subheader','legend','labels','dataPoint'],
+  gauge:                          ['general','title','subheader','dataLabels','gauge','target'],
+  card:                           ['general','title','dataLabels','categoryLabels','wordWrap','background','border'],
+  multiRowCard:                   ['general','title','dataLabels','categoryLabels','cardTitle','outline','bar','background','border'],
+  kpi:                            ['general','title','indicator','trendline','dataLabels','goals','statusGraphic'],
+  slicer:                         ['general','title','header','items','selection','data','background','border'],
+  tableEx:                        ['general','title','grid','columnHeaders','values','total','background','border'],
+  matrix:                         ['general','title','grid','rowHeaders','columnHeaders','values','subtotals','background','border'],
+  lineClusteredColumnComboChart:  ['general','title','subheader','legend','categoryAxis','valueAxis','labels','dataPoint','plotArea','zoom'],
+  lineStackedColumnComboChart:    ['general','title','subheader','legend','categoryAxis','valueAxis','labels','dataPoint','plotArea','zoom'],
+  decompositionTree:              ['general','title','subheader','legend','labels','dataLabels','header'],
+  shape:                          ['fill','line','shadow','border'],
+  textbox:                        ['background','border','shadow'],
+  image:                          ['imageScaling','background','border'],
+  actionButton:                   ['text','fill','outline','shadow','border'],
+};
+
 // ── Embedded theme state ──
 const THEME = {"name":"Customer360 Theme","dataColors":["#0F4C81","#1F8AC0","#3BBFCE","#70C1B3","#F4A261","#E76F51","#264653","#2A9D8F"],"background":"#FFFFFF","foreground":"#0F4C81","tableAccent":"#1F8AC0","visualStyles":{"*":{"*":{"background":[{"show":false}],"border":[{"show":false}],"dropShadow":[{"show":false}],"visualHeader":[{"show":true}],"title":[{"show":true,"fontFamily":"Segoe UI","fontSize":14,"fontBold":true,"fontColor":{"solid":{"color":"#0F4C81"}},"alignment":"left","background":{"solid":{"color":"#FFFFFF"}}}]}},"barChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":false}]}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}],"plotArea":[{"transparency":0}]}},"clusteredBarChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"stackedBarChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"hundredPercentStackedBarChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"dataLabels":[{"show":true,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"columnChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":false}]}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"clusteredColumnChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"stackedColumnChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"hundredPercentStackedColumnChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"dataLabels":[{"show":true,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"lineChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}],"shapes":[{"strokeWidth":2,"showMarker":false,"markerSize":3}]}},"areaChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"stackedAreaChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"ribbonChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"waterfallChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":true,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}],"sentimentColors":[{"increaseFill":{"solid":{"color":"#2A9D8F"}},"decreaseFill":{"solid":{"color":"#E76F51"}},"totalFill":{"solid":{"color":"#0F4C81"}}}]}},"scatterChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}],"fillPoint":[{"show":true}]}},"pieChart":{"*":{"legend":[{"show":true,"position":"Right","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"dataLabels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}},"labelDisplayUnits":0,"labelStyle":"category"}],"detail":[{"show":false}]}},"donutChart":{"*":{"legend":[{"show":true,"position":"Right","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"dataLabels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}},"labelStyle":"category"}],"innerRadius":[{"innerRadiusRatio":50}]}},"treemap":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"dataLabels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}],"categoryLabels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"map":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}],"bubbles":[{"minBubbleSize":10,"maxBubbleSize":40}]}},"filledMap":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"funnel":{"*":{"legend":[{"show":false}],"dataLabels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}},"labelStyle":"both"}]}},"gauge":{"*":{"dataLabels":[{"show":true,"fontSize":24,"fontFamily":"Segoe UI","color":{"solid":{"color":"#0F4C81"}}}],"gauge":[{"arcAngle":150,"startAngle":-150,"pinNeedle":false,"targetColor":{"solid":{"color":"#E76F51"}},"foregroundColor":{"solid":{"color":"#1F8AC0"}},"backgroundColor":{"solid":{"color":"#E0E0E0"}}}],"target":[{"show":true,"fontSize":12,"fontFamily":"Segoe UI","color":{"solid":{"color":"#666666"}}}]}},"card":{"*":{"dataLabels":[{"show":true,"fontSize":32,"fontFamily":"Segoe UI Light","color":{"solid":{"color":"#0F4C81"}},"labelDisplayUnits":0}],"categoryLabels":[{"show":true,"fontSize":12,"fontFamily":"Segoe UI","color":{"solid":{"color":"#666666"}}}],"wordWrap":[{"show":false}]}},"multiRowCard":{"*":{"dataLabels":[{"fontSize":14,"fontFamily":"Segoe UI","color":{"solid":{"color":"#0F4C81"}}}],"categoryLabels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#666666"}}}],"cardTitle":[{"show":true,"fontSize":12,"fontFamily":"Segoe UI Semibold","color":{"solid":{"color":"#0F4C81"}}}],"outline":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}},"weight":1}],"bar":[{"show":true,"color":{"solid":{"color":"#1F8AC0"}},"weight":4}]}},"kpi":{"*":{"indicator":[{"show":true,"thickness":3}],"trendline":[{"show":true,"color":{"solid":{"color":"#1F8AC0"}}}],"dataLabels":[{"show":true,"fontSize":28,"fontFamily":"Segoe UI Light","color":{"solid":{"color":"#0F4C81"}}}],"goals":[{"show":true,"fontSize":12,"fontFamily":"Segoe UI","color":{"solid":{"color":"#666666"}}}],"statusGraphic":[{"show":true}]}},"slicer":{"*":{"data":[{"fontFamily":"Segoe UI","fontSize":12,"fontColor":{"solid":{"color":"#333333"}}}],"selection":[{"selectAllCheckboxEnabled":false,"singleSelect":true}],"header":[{"show":true,"fontFamily":"Segoe UI Semibold","fontSize":12,"fontColor":{"solid":{"color":"#0F4C81"}},"background":{"solid":{"color":"#FFFFFF"}},"outline":"None"}],"items":[{"fontFamily":"Segoe UI","fontSize":11,"fontColor":{"solid":{"color":"#333333"}},"background":{"solid":{"color":"#FFFFFF"}},"outline":"Frame"}]}},"tableEx":{"*":{"grid":[{"outlineColor":{"solid":{"color":"#E0E0E0"}},"outlineWeight":1,"gridVertical":false,"gridHorizontal":true,"gridHorizontalColor":{"solid":{"color":"#E0E0E0"}},"gridHorizontalWeight":1,"rowPadding":4}],"columnHeaders":[{"fontFamily":"Segoe UI Semibold","fontSize":11,"fontColor":{"solid":{"color":"#FFFFFF"}},"background":{"solid":{"color":"#0F4C81"}},"outline":"None","alignment":"left"}],"values":[{"fontFamily":"Segoe UI","fontSize":11,"fontColor":{"solid":{"color":"#333333"}},"background":{"solid":{"color":"#FFFFFF"}},"bandedRowColor":{"solid":{"color":"#F0F6FB"}},"alignment":"left"}],"total":[{"totals":true,"fontFamily":"Segoe UI Semibold","fontSize":11,"fontColor":{"solid":{"color":"#0F4C81"}},"background":{"solid":{"color":"#E8F0F7"}},"outline":"Top","outlineColor":{"solid":{"color":"#0F4C81"}}}]}},"matrix":{"*":{"grid":[{"outlineColor":{"solid":{"color":"#E0E0E0"}},"outlineWeight":1,"gridVertical":false,"gridHorizontal":true,"gridHorizontalColor":{"solid":{"color":"#E0E0E0"}},"gridHorizontalWeight":1,"rowPadding":4}],"rowHeaders":[{"fontFamily":"Segoe UI","fontSize":11,"fontColor":{"solid":{"color":"#333333"}},"background":{"solid":{"color":"#FFFFFF"}},"outline":"None","stepped":true,"steppedLayoutIndentation":20,"expandCollapse":true}],"columnHeaders":[{"fontFamily":"Segoe UI Semibold","fontSize":11,"fontColor":{"solid":{"color":"#FFFFFF"}},"background":{"solid":{"color":"#0F4C81"}},"outline":"None","alignment":"left"}],"values":[{"fontFamily":"Segoe UI","fontSize":11,"fontColor":{"solid":{"color":"#333333"}},"background":{"solid":{"color":"#FFFFFF"}},"bandedRowColor":{"solid":{"color":"#F0F6FB"}},"alignment":"right"}],"subtotals":[{"rowSubtotals":true,"columnSubtotals":true,"fontFamily":"Segoe UI Semibold","fontSize":11,"fontColor":{"solid":{"color":"#0F4C81"}},"background":{"solid":{"color":"#E8F0F7"}},"outline":"TopBottom","outlineColor":{"solid":{"color":"#0F4C81"}},"perRowLevel":true,"perColumnLevel":true}]}},"lineClusteredColumnComboChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"y2AxisReferenceLine":[{"show":false}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"lineStackedColumnComboChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"decompositionTree":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"dataLabels":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","color":{"solid":{"color":"#333333"}}}],"header":[{"fontFamily":"Segoe UI Semibold","fontSize":11,"fontColor":{"solid":{"color":"#FFFFFF"}},"fill":{"solid":{"color":"#0F4C81"}}}]}},"shape":{"*":{"fill":[{"show":true,"fillColor":{"solid":{"color":"#1F8AC0"}},"transparency":0}],"line":[{"show":false,"strokeColor":{"solid":{"color":"#0F4C81"}},"strokeWidth":1}]}},"textbox":{"*":{"background":[{"show":false}],"border":[{"show":false}]}},"image":{"*":{"imageScaling":[{"imageScalingType":"Fit"}],"background":[{"show":false}]}},"actionButton":{"*":{"text":[{"show":true,"fontFamily":"Segoe UI","fontSize":12,"fontBold":false,"fontColor":{"solid":{"color":"#FFFFFF"}},"alignment":"center","verticalAlignment":"middle"}],"fill":[{"show":true,"color":{"solid":{"color":"#1F8AC0"}},"transparency":0}],"outline":[{"show":false}],"shadow":[{"show":false}]}}}};
 
@@ -683,6 +1091,15 @@ const VALIDATION = {
   labelDisplayUnits:     { min: 0,   max: 4,   step: 1 },
 };
 
+// ── Get or create a card's data object in THEME ──
+function getCardData(visualKey, cardName) {
+  if (!THEME.visualStyles[visualKey]) THEME.visualStyles[visualKey] = { '*': {} };
+  if (!THEME.visualStyles[visualKey]['*']) THEME.visualStyles[visualKey]['*'] = {};
+  const cards = THEME.visualStyles[visualKey]['*'];
+  if (!cards[cardName] || !cards[cardName][0]) cards[cardName] = [{}];
+  return cards[cardName][0];
+}
+
 // ── Modal open/close ──
 function openEditModal(key, label) {
   currentVisual = key;
@@ -693,17 +1110,26 @@ function openEditModal(key, label) {
   const body = document.getElementById('modal-body');
   body.innerHTML = '';
 
-  const style = THEME.visualStyles[key];
-  if (!style || !style['*']) {
-    body.innerHTML = '<p style="color:#aaa;padding:20px;">No settings defined for this visual.</p>';
-  } else {
-    Object.entries(style['*']).forEach(([cardName, cardArr]) => {
-      if (!Array.isArray(cardArr) || !cardArr[0]) return;
-      body.appendChild(buildModalCard(cardName, cardArr[0], key));
-    });
-  }
+  // layout: preview on top, cards below
+  const previewWrap = document.createElement('div');
+  previewWrap.id = 'modal-preview-wrap';
+  previewWrap.style.cssText = 'background:#f8fafd;border-radius:8px;padding:16px;margin-bottom:16px;min-height:200px;display:flex;align-items:center;justify-content:center;';
+  const canvas = document.createElement('canvas');
+  canvas.id = 'preview-canvas';
+  canvas.width = 480; canvas.height = 200;
+  canvas.style.cssText = 'max-width:100%;border-radius:4px;';
+  previewWrap.appendChild(canvas);
+  body.appendChild(previewWrap);
+
+  const cardList = VISUAL_SCHEMA[key] || [];
+  cardList.forEach(cardName => {
+    if (!CARD_DEFS[cardName]) return;
+    const data = getCardData(key, cardName);
+    body.appendChild(buildModalCard(cardName, data, key));
+  });
 
   document.getElementById('modal-overlay').classList.add('open');
+  renderPreview(key);
 }
 
 function closeEditModal() {
@@ -716,26 +1142,116 @@ document.getElementById('modal-overlay').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeEditModal();
 });
 
-function buildModalCard(cardName, props, visualKey) {
+function buildModalCard(cardName, data, visualKey) {
+  const defs = CARD_DEFS[cardName];
+  if (!defs) return document.createDocumentFragment();
+
   const wrap = document.createElement('div');
   wrap.className = 'card';
   wrap.style.marginBottom = '14px';
 
-  const header = document.createElement('div');
-  header.className = 'card-header open';
-  header.innerHTML = `${cardName} <span class="arrow" style="transform:rotate(90deg)">▶</span>`;
-  header.addEventListener('click', () => {
-    header.classList.toggle('open');
-    body.classList.toggle('open');
-    header.querySelector('.arrow').style.transform = header.classList.contains('open') ? 'rotate(90deg)' : '';
-  });
+  const hdr = document.createElement('div');
+  hdr.className = 'card-header open';
+  hdr.innerHTML = `${cardName} <span class="arrow" style="transform:rotate(90deg)">▶</span>`;
 
   const body = document.createElement('div');
   body.className = 'card-body open';
-  body.appendChild(buildPropRows(props, visualKey, cardName));
 
-  wrap.appendChild(header);
-  wrap.appendChild(body);
+  defs.forEach(def => {
+    const val = data[def.key] !== undefined ? resolveVal(data[def.key]) : def.def;
+    const row = document.createElement('div');
+    row.className = 'prop-row';
+    const lbl = document.createElement('span');
+    lbl.className = 'prop-label';
+    lbl.textContent = def.label;
+    const ctrl = buildCtrl(def, val, newVal => {
+      data[def.key] = storeVal(def, newVal);
+      updateJSON();
+      renderPreview(visualKey);
+    });
+    row.appendChild(lbl); row.appendChild(ctrl);
+    body.appendChild(row);
+  });
+
+  hdr.addEventListener('click', () => {
+    hdr.classList.toggle('open');
+    body.classList.toggle('open');
+    hdr.querySelector('.arrow').style.transform = hdr.classList.contains('open') ? 'rotate(90deg)' : '';
+  });
+
+  wrap.appendChild(hdr); wrap.appendChild(body);
+  return wrap;
+}
+
+// resolve stored value to plain value for rendering
+function resolveVal(v) {
+  if (isSolidColor(v)) return getSolidColor(v);
+  return v;
+}
+// store value back in correct format
+function storeVal(def, v) {
+  if (def.type === 'color') return { solid: { color: v } };
+  return v;
+}
+
+function buildCtrl(def, val, onChange) {
+  const wrap = document.createElement('div');
+  wrap.className = 'prop-control';
+
+  if (def.type === 'boolean') {
+    const label = document.createElement('label');
+    label.className = 'toggle';
+    const inp = document.createElement('input');
+    inp.type = 'checkbox'; inp.checked = !!val;
+    inp.addEventListener('change', () => onChange(inp.checked));
+    const slider = document.createElement('span');
+    slider.className = 'toggle-slider';
+    label.appendChild(inp); label.appendChild(slider);
+    wrap.appendChild(label);
+
+  } else if (def.type === 'color') {
+    const cw = document.createElement('div'); cw.className = 'color-wrap';
+    const inp = document.createElement('input');
+    inp.type = 'color';
+    inp.value = (val || '#000000').toLowerCase();
+    const hex = document.createElement('span');
+    hex.className = 'color-hex'; hex.textContent = inp.value.toUpperCase();
+    inp.addEventListener('input', () => { hex.textContent = inp.value.toUpperCase(); onChange(inp.value.toUpperCase()); });
+    cw.appendChild(inp); cw.appendChild(hex); wrap.appendChild(cw);
+
+  } else if (def.type === 'number') {
+    const inp = document.createElement('input');
+    inp.type = 'number'; inp.className = 'prop-num'; inp.value = val ?? def.def ?? 0;
+    if (def.min !== undefined) inp.min = def.min;
+    if (def.max !== undefined) inp.max = def.max;
+    inp.step = def.step || 1;
+    inp.addEventListener('change', () => {
+      let v = Number(inp.value);
+      if (def.min !== undefined && v < def.min) { v = def.min; inp.value = v; }
+      if (def.max !== undefined && v > def.max) { v = def.max; inp.value = v; }
+      onChange(v);
+    });
+    wrap.appendChild(inp);
+
+  } else if (def.type === 'enum' || def.type === 'fontFamily') {
+    const opts = def.options || ENUMS[def.key] || [];
+    const sel = document.createElement('select'); sel.className = 'prop-select';
+    opts.forEach(o => {
+      const op = document.createElement('option');
+      op.value = o; op.textContent = o;
+      if (o === val) op.selected = true;
+      sel.appendChild(op);
+    });
+    sel.addEventListener('change', () => onChange(sel.value));
+    wrap.appendChild(sel);
+
+  } else {
+    const inp = document.createElement('input');
+    inp.type = 'text'; inp.className = 'prop-text'; inp.value = val || '';
+    inp.maxLength = 200;
+    inp.addEventListener('change', () => onChange(inp.value));
+    wrap.appendChild(inp);
+  }
   return wrap;
 }
 
@@ -884,6 +1400,128 @@ function makeText(key, val, onChange) {
   inp.addEventListener('input', () => inp.style.borderColor = '');
   wrap.appendChild(inp);
   return wrap;
+}
+
+// ── Chart preview renderer ──
+let _previewChart = null;
+const SAMPLE_LABELS = ['Jan','Feb','Mar','Apr','May','Jun'];
+const SAMPLE_DATA   = [42, 68, 55, 80, 63, 91];
+const SAMPLE_DATA2  = [30, 45, 60, 35, 70, 50];
+
+function getThemeColor(idx) { return THEME.dataColors[idx % THEME.dataColors.length]; }
+
+function resolveCardVal(visualKey, cardName, propKey, fallback) {
+  try { return resolveVal(THEME.visualStyles[visualKey]['*'][cardName][0][propKey]) ?? fallback; }
+  catch(e) { return fallback; }
+}
+
+function renderPreview(visualKey) {
+  const canvas = document.getElementById('preview-canvas');
+  if (!canvas) return;
+  if (_previewChart) { _previewChart.destroy(); _previewChart = null; }
+
+  const ctx = canvas.getContext('2d');
+  const colors = THEME.dataColors;
+
+  const legendShow     = resolveCardVal(visualKey,'legend','show', true);
+  const legendPos      = resolveCardVal(visualKey,'legend','position','top').toLowerCase().replace('center','').trim() || 'top';
+  const labelShow      = resolveCardVal(visualKey,'labels','show', false);
+  const labelColor     = resolveCardVal(visualKey,'labels','color','#FFFFFF');
+  const gridColor      = resolveCardVal(visualKey,'valueAxis','gridlineColor','#E0E0E0');
+  const gridShow       = resolveCardVal(visualKey,'valueAxis','gridlineShow', true);
+  const axisColor      = resolveCardVal(visualKey,'categoryAxis','labelColor','#666666');
+
+  const baseOpts = {
+    responsive: false,
+    animation: { duration: 200 },
+    plugins: {
+      legend: { display: legendShow, position: legendPos },
+      datalabels: false,
+    },
+    scales: {
+      x: { ticks: { color: axisColor }, grid: { display: false } },
+      y: { ticks: { color: axisColor }, grid: { display: gridShow, color: gridColor } },
+    }
+  };
+
+  const type2chart = {
+    barChart:'bar', clusteredBarChart:'bar', stackedBarChart:'bar',
+    hundredPercentStackedBarChart:'bar', columnChart:'bar', clusteredColumnChart:'bar',
+    stackedColumnChart:'bar', hundredPercentStackedColumnChart:'bar',
+    lineChart:'line', areaChart:'line', stackedAreaChart:'line', ribbonChart:'bar',
+    waterfallChart:'bar', scatterChart:'scatter',
+    pieChart:'pie', donutChart:'doughnut',
+    treemap:'bar', funnel:'bar',
+    gauge:'doughnut', kpi:'line', card:'doughnut',
+    map:'bar', filledMap:'bar', multiRowCard:'bar',
+    slicer:'bar', tableEx:'bar', matrix:'bar',
+    lineClusteredColumnComboChart:'bar', lineStackedColumnComboChart:'bar',
+    decompositionTree:'bar', shape:null, textbox:null, image:null, actionButton:null,
+    '*':'bar',
+  };
+
+  const ctype = type2chart[visualKey] || 'bar';
+  if (!ctype) {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#aaa'; ctx.font='14px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText('No chart preview for this visual type', canvas.width/2, canvas.height/2);
+    return;
+  }
+
+  let cfg;
+  if (ctype === 'scatter') {
+    cfg = {
+      type:'scatter',
+      data: { datasets:[{
+        label:'Series 1', backgroundColor: colors[0],
+        data: SAMPLE_LABELS.map((_,i) => ({ x: i*15+5, y: SAMPLE_DATA[i] }))
+      }]},
+      options: { ...baseOpts }
+    };
+  } else if (ctype === 'pie' || ctype === 'doughnut') {
+    const innerRadius = resolveCardVal(visualKey,'innerRadius','innerRadiusRatio',50);
+    cfg = {
+      type: ctype,
+      data: { labels: SAMPLE_LABELS, datasets:[{ data: SAMPLE_DATA, backgroundColor: colors }] },
+      options: {
+        responsive:false, animation:{duration:200},
+        plugins:{ legend:{ display:legendShow, position:legendPos } },
+        cutout: ctype==='doughnut' ? `${innerRadius}%` : 0,
+      }
+    };
+  } else if (ctype === 'line') {
+    const strokeWidth = resolveCardVal(visualKey,'lineStyles','strokeWidth',2);
+    const showMarker  = resolveCardVal(visualKey,'lineStyles','showMarker',false);
+    const fill = ['areaChart','stackedAreaChart'].includes(visualKey);
+    cfg = {
+      type:'line',
+      data:{ labels:SAMPLE_LABELS, datasets:[
+        { label:'Series 1', data:SAMPLE_DATA,  borderColor:colors[0], backgroundColor:colors[0]+'44', borderWidth:strokeWidth, pointRadius:showMarker?4:0, fill },
+        { label:'Series 2', data:SAMPLE_DATA2, borderColor:colors[1], backgroundColor:colors[1]+'44', borderWidth:strokeWidth, pointRadius:showMarker?4:0, fill:false },
+      ]},
+      options:{ ...baseOpts }
+    };
+  } else {
+    const stacked = visualKey.toLowerCase().includes('stacked') || visualKey.toLowerCase().includes('hundred');
+    const horizontal = visualKey.toLowerCase().includes('bar') && !visualKey.toLowerCase().includes('column');
+    cfg = {
+      type:'bar',
+      data:{ labels:SAMPLE_LABELS, datasets:[
+        { label:'Series 1', data:SAMPLE_DATA,  backgroundColor:colors[0] },
+        { label:'Series 2', data:SAMPLE_DATA2, backgroundColor:colors[1] },
+      ]},
+      options:{
+        ...baseOpts,
+        indexAxis: horizontal ? 'y' : 'x',
+        scales:{
+          x:{ stacked, ticks:{color:axisColor}, grid:{display:!horizontal && gridShow, color:gridColor} },
+          y:{ stacked, ticks:{color:axisColor}, grid:{display: horizontal && gridShow, color:gridColor} },
+        }
+      }
+    };
+  }
+
+  _previewChart = new Chart(ctx, cfg);
 }
 
 // ── Visual cards grid ──
