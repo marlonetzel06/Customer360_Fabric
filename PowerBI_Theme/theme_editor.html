@@ -325,22 +325,41 @@
 <div id="main">
   <section id="settings-panel">
     <!-- Global settings bar -->
-    <div id="global-bar" style="background:#fff;border-radius:8px;padding:12px 16px;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.07);display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
-      <span style="font-size:12px;font-weight:700;color:#0f4c81;min-width:80px;">Theme Globals</span>
-      <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;">
-        Background
-        <input type="color" id="g-background" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;">
-      </label>
-      <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;">
-        Foreground
-        <input type="color" id="g-foreground" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;">
-      </label>
-      <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;">
-        Table Accent
-        <input type="color" id="g-tableAccent" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;">
-      </label>
-      <span style="font-size:12px;color:#444;">Data Colors:</span>
-      <div id="data-colors" style="display:flex;gap:4px;flex-wrap:wrap;"></div>
+    <div id="global-bar" style="background:#fff;border-radius:8px;padding:12px 16px;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.07);display:flex;flex-direction:column;gap:10px;">
+      <!-- Row 1: Colors + Palette -->
+      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
+        <span style="font-size:12px;font-weight:700;color:#0f4c81;min-width:80px;">Colors</span>
+        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;">
+          Background
+          <input type="color" id="g-background" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;">
+        </label>
+        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;">
+          Foreground
+          <input type="color" id="g-foreground" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;">
+        </label>
+        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;">
+          Table Accent
+          <input type="color" id="g-tableAccent" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;">
+        </label>
+        <span style="font-size:12px;color:#444;">Data Colors:</span>
+        <div id="data-colors" style="display:flex;gap:4px;flex-wrap:wrap;"></div>
+      </div>
+      <!-- Row 2: Global Typography -->
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;border-top:1px solid #eef2f8;padding-top:10px;">
+        <span style="font-size:12px;font-weight:700;color:#0f4c81;min-width:80px;">Typography</span>
+        <span style="font-size:11px;color:#666;font-weight:600;">Titles:</span>
+        <select id="gt-title-font" style="font-size:11px;padding:2px 4px;border:1px solid #cdd;border-radius:3px;"></select>
+        <label style="font-size:11px;color:#444;display:flex;align-items:center;gap:4px;">Size <input type="number" id="gt-title-size" value="14" min="6" max="96" style="width:40px;font-size:11px;padding:1px 3px;border:1px solid #cdd;border-radius:3px;"></label>
+        <label style="font-size:11px;color:#444;display:flex;align-items:center;gap:4px;">Color <input type="color" id="gt-title-color" style="width:22px;height:22px;border:none;border-radius:3px;cursor:pointer;"></label>
+        <span style="font-size:11px;color:#666;font-weight:600;margin-left:8px;">Axis:</span>
+        <select id="gt-axis-font" style="font-size:11px;padding:2px 4px;border:1px solid #cdd;border-radius:3px;"></select>
+        <label style="font-size:11px;color:#444;display:flex;align-items:center;gap:4px;">Size <input type="number" id="gt-axis-size" value="11" min="6" max="40" style="width:40px;font-size:11px;padding:1px 3px;border:1px solid #cdd;border-radius:3px;"></label>
+        <label style="font-size:11px;color:#444;display:flex;align-items:center;gap:4px;">Color <input type="color" id="gt-axis-color" style="width:22px;height:22px;border:none;border-radius:3px;cursor:pointer;"></label>
+        <span style="font-size:11px;color:#666;font-weight:600;margin-left:8px;">Data Labels:</span>
+        <select id="gt-label-font" style="font-size:11px;padding:2px 4px;border:1px solid #cdd;border-radius:3px;"></select>
+        <label style="font-size:11px;color:#444;display:flex;align-items:center;gap:4px;">Size <input type="number" id="gt-label-size" value="9" min="6" max="40" style="width:40px;font-size:11px;padding:1px 3px;border:1px solid #cdd;border-radius:3px;"></label>
+        <label style="font-size:11px;color:#444;display:flex;align-items:center;gap:4px;">Color <input type="color" id="gt-label-color" style="width:22px;height:22px;border:none;border-radius:3px;cursor:pointer;"></label>
+      </div>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
       <h1 id="panel-title" style="margin:0;">All Visuals</h1>
@@ -1308,9 +1327,60 @@ function initGlobalBar() {
     inp.value = col.toLowerCase();
     inp.title = `Color ${i+1}`;
     inp.style.cssText = 'width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;';
-    inp.addEventListener('input', () => { THEME.dataColors[i] = inp.value.toUpperCase(); updateJSON(); });
+    inp.addEventListener('input', () => { THEME.dataColors[i] = inp.value.toUpperCase(); updateJSON(); buildGrid(); });
     dc.appendChild(inp);
   });
+
+  // Populate font dropdowns
+  ['gt-title-font','gt-axis-font','gt-label-font'].forEach(id => {
+    const sel = document.getElementById(id);
+    FONTS.forEach(f => { const o=document.createElement('option'); o.value=f; o.textContent=f; sel.appendChild(o); });
+  });
+
+  // Helper: write to THEME.visualStyles['*']['*'][card][0][prop]
+  function setGlobal(card, prop, val) {
+    if (!THEME.visualStyles['*']) THEME.visualStyles['*'] = {};
+    if (!THEME.visualStyles['*']['*']) THEME.visualStyles['*']['*'] = {};
+    if (!THEME.visualStyles['*']['*'][card]) THEME.visualStyles['*']['*'][card] = [{}];
+    if (!THEME.visualStyles['*']['*'][card][0]) THEME.visualStyles['*']['*'][card][0] = {};
+    THEME.visualStyles['*']['*'][card][0][prop] = val;
+    updateJSON();
+  }
+
+  // Read initial global values
+  const gTitle = () => THEME.visualStyles?.['*']?.['*']?.title?.[0] || {};
+  const gAxis  = () => THEME.visualStyles?.['*']?.['*']?.categoryAxis?.[0] || {};
+  const gLabel = () => THEME.visualStyles?.['*']?.['*']?.labels?.[0] || {};
+
+  const tFont = document.getElementById('gt-title-font');
+  const tSize = document.getElementById('gt-title-size');
+  const tColor= document.getElementById('gt-title-color');
+  tFont.value  = gTitle().fontFamily || 'Segoe UI';
+  tSize.value  = gTitle().fontSize   || 14;
+  tColor.value = (gTitle().fontColor || '#0F4C81').toLowerCase();
+  tFont.addEventListener('change', () => setGlobal('title','fontFamily', tFont.value));
+  tSize.addEventListener('change', () => setGlobal('title','fontSize',   +tSize.value));
+  tColor.addEventListener('input',  () => setGlobal('title','fontColor', tColor.value.toUpperCase()));
+
+  const aFont = document.getElementById('gt-axis-font');
+  const aSize = document.getElementById('gt-axis-size');
+  const aColor= document.getElementById('gt-axis-color');
+  aFont.value  = gAxis().fontFamily || 'Segoe UI';
+  aSize.value  = gAxis().fontSize   || 11;
+  aColor.value = (gAxis().labelColor || '#666666').toLowerCase();
+  aFont.addEventListener('change', () => { setGlobal('categoryAxis','fontFamily',aFont.value); setGlobal('valueAxis','fontFamily',aFont.value); });
+  aSize.addEventListener('change', () => { setGlobal('categoryAxis','fontSize',+aSize.value); setGlobal('valueAxis','fontSize',+aSize.value); });
+  aColor.addEventListener('input',  () => { setGlobal('categoryAxis','labelColor',aColor.value.toUpperCase()); setGlobal('valueAxis','labelColor',aColor.value.toUpperCase()); });
+
+  const lFont = document.getElementById('gt-label-font');
+  const lSize = document.getElementById('gt-label-size');
+  const lColor= document.getElementById('gt-label-color');
+  lFont.value  = gLabel().fontFamily || 'Segoe UI';
+  lSize.value  = gLabel().fontSize   || 9;
+  lColor.value = (gLabel().color || '#FFFFFF').toLowerCase();
+  lFont.addEventListener('change', () => setGlobal('labels','fontFamily', lFont.value));
+  lSize.addEventListener('change', () => setGlobal('labels','fontSize',   +lSize.value));
+  lColor.addEventListener('input',  () => setGlobal('labels','color',      lColor.value.toUpperCase()));
 }
 
 // ── VALIDATION rules per property name ──
@@ -1692,10 +1762,18 @@ const SD1 = [42,68,55,80,63,91];
 const SD2 = [30,45,60,35,70,50];
 const SD3 = [20,30,25,45,30,40];
 
-function rcv(vk,card,prop,fb) {
-  try { return resolveVal(THEME.visualStyles[vk]['*'][card][0][prop]) ?? fb; } catch(e){ return fb; }
+function rcv(vk, card, prop, fb) {
+  try { const v = resolveVal(THEME.visualStyles[vk]['*'][card][0][prop]); if (v !== undefined && v !== null) return v; } catch(e){}
+  try { const v = resolveVal(THEME.visualStyles['*']['*'][card][0][prop]); if (v !== undefined && v !== null) return v; } catch(e){}
+  return fb;
 }
 function col(i){ return THEME.dataColors[i % THEME.dataColors.length]; }
+function hexAlpha(hex, a) {
+  if (!hex || hex.length < 6) return `rgba(0,0,0,${a})`;
+  const h = hex.replace('#','');
+  const r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16);
+  return `rgba(${r},${g},${b},${(+a).toFixed(2)})`;
+}
 
 // ── Master preview renderer — returns Chart instance or null ──
 function renderVisualPreview(vk, canvas, isModal) {
@@ -1730,40 +1808,97 @@ function renderVisualPreview(vk, canvas, isModal) {
   }
   const colors = THEME.dataColors;
 
-  const legendShow = rcv(vk,'legend','show',true);
-  const legendPos  = (rcv(vk,'legend','position','Top')||'Top').toLowerCase().replace('center','').replace('right','right').trim() || 'top';
-  const axisCol    = rcv(vk,'categoryAxis','labelColor','#666666');
+  // ── Legend
+  const legendShow    = rcv(vk,'legend','show',true);
+  const _lp           = (rcv(vk,'legend','position','Top')||'Top').toLowerCase();
+  const legendPos     = _lp.includes('right') ? 'right' : _lp.includes('left') ? 'left' : _lp.includes('bottom') ? 'bottom' : 'top';
+  const legendColor   = rcv(vk,'legend','labelColor','#444444');
+  const legendFontSz  = rcv(vk,'legend','fontSize', isModal?10:8);
+
+  // ── Category axis
+  const catShow    = rcv(vk,'categoryAxis','show', true);
+  const catColor   = rcv(vk,'categoryAxis','labelColor','#666666');
+  const catFontSz  = rcv(vk,'categoryAxis','fontSize', isModal?11:9);
+  const catGridShow= rcv(vk,'categoryAxis','gridlineShow', false);
+  const catGridCol = rcv(vk,'categoryAxis','gridlineColor','#E0E0E0');
+
+  // ── Value axis
+  const valShow    = rcv(vk,'valueAxis','show', true);
+  const valColor   = rcv(vk,'valueAxis','labelColor','#666666');
+  const valFontSz  = rcv(vk,'valueAxis','fontSize', isModal?11:9);
+  const gridShow   = rcv(vk,'valueAxis','gridlineShow', true);
   const gridCol    = rcv(vk,'valueAxis','gridlineColor','#E0E0E0');
-  const gridShow   = rcv(vk,'valueAxis','gridlineShow',true);
-  const fontSize   = isModal ? 11 : 9;
+
+  // ── Data point
+  const dpDefaultColor = rcv(vk,'dataPoint','defaultColor', null);
+  const dpAlpha        = 1 - (rcv(vk,'dataPoint','fillTransparency', 0) / 100);
+
+  // ── Data labels
+  const labShow   = rcv(vk,'labels','show', false);
+  const labColor  = rcv(vk,'labels','color','#FFFFFF');
+  const labFontSz = rcv(vk,'labels','fontSize', isModal?9:8);
+
+  // ── Title (drawn on canvas before chart)
+  const titleShow  = rcv(vk,'title','show', true);
+  const titleColor = rcv(vk,'title','fontColor','#0F4C81');
+  const titleFontSz= Math.min(rcv(vk,'title','fontSize', 14), isModal?16:13);
+  const titleBold  = rcv(vk,'title','bold', true);
+  const titleText  = rcv(vk,'title','text','') || (typeof VISUAL_LABELS !== 'undefined' ? VISUAL_LABELS[vk]||vk : vk);
+
+  // ── Background
+  const bgShow  = rcv(vk,'background','show', false);
+  const bgColor = rcv(vk,'background','color','#FFFFFF');
+  const bgAlpha = 1 - (rcv(vk,'background','transparency', 0) / 100);
+
+  if (bgShow) { ctx.fillStyle = hexAlpha(bgColor, bgAlpha); ctx.fillRect(0,0,W,H); }
+
+  // Reserve top space for title
+  let titleH = 0;
+  if (titleShow) {
+    titleH = titleFontSz + 6;
+    ctx.fillStyle = titleColor;
+    ctx.font = `${titleBold?'bold ':''}${titleFontSz}px Segoe UI`;
+    ctx.textAlign = 'left';
+    const displayTitle = titleText.length > 28 ? titleText.slice(0,28)+'…' : titleText;
+    ctx.fillText(displayTitle, 6, titleFontSz + 2);
+  }
+
+  // ── Series color helper
+  function sc(i) {
+    const base = (i===0 && dpDefaultColor) ? dpDefaultColor : col(i);
+    return hexAlpha(base, dpAlpha > 0 ? dpAlpha : 1);
+  }
+
+  const fontSize = isModal ? 11 : 9;
 
   const baseScales = {
-    x: { ticks:{color:axisCol,font:{size:fontSize}}, grid:{display:false} },
-    y: { ticks:{color:axisCol,font:{size:fontSize}}, grid:{display:gridShow,color:gridCol} }
+    x: { display:catShow, ticks:{color:catColor, font:{size:catFontSz}}, grid:{display:catGridShow, color:catGridCol}, border:{display:false} },
+    y: { display:valShow, ticks:{color:valColor,  font:{size:valFontSz}}, grid:{display:gridShow,   color:gridCol},    border:{display:false} }
   };
   const basePlugins = {
-    legend:{ display:legendShow && isModal, position:legendPos, labels:{font:{size:fontSize},boxWidth:10} },
+    legend:{ display:legendShow && isModal, position:legendPos, labels:{font:{size:legendFontSz}, color:legendColor, boxWidth:10} },
     tooltip:{ enabled:false }
   };
-  const baseOpts = { responsive:false, animation:{duration:150}, plugins:basePlugins };
+  const baseOpts = { responsive:false, animation:{duration:150}, plugins:basePlugins,
+    layout:{ padding:{ top: titleH } } };
 
   // ── Horizontal bar charts ──
   if (['barChart','clusteredBarChart','stackedBarChart','hundredPercentStackedBarChart'].includes(vk)) {
     const stacked  = vk==='stackedBarChart'||vk==='hundredPercentStackedBarChart';
     const pct      = vk==='hundredPercentStackedBarChart';
     const datasets = vk==='barChart'
-      ? [{ label:'A', data:SD1, backgroundColor:col(0) }]
+      ? [{ label:'A', data:SD1, backgroundColor:sc(0) }]
       : [
-          { label:'A', data:SD1, backgroundColor:col(0) },
-          { label:'B', data:SD2, backgroundColor:col(1) },
-          { label:'C', data:SD3, backgroundColor:col(2) },
+          { label:'A', data:SD1, backgroundColor:sc(0) },
+          { label:'B', data:SD2, backgroundColor:sc(1) },
+          { label:'C', data:SD3, backgroundColor:sc(2) },
         ];
     return new Chart(ctx,{
       type:'bar',
       data:{ labels:SL, datasets },
       options:{ ...baseOpts, indexAxis:'y',
-        scales:{ x:{stacked,ticks:{color:axisCol,font:{size:fontSize}},grid:{display:gridShow,color:gridCol}, border:{display:false}, max:pct?100:undefined},
-                 y:{stacked,ticks:{color:axisCol,font:{size:fontSize}},grid:{display:false}, border:{display:false}} } }
+        scales:{ x:{stacked, display:valShow, ticks:{color:valColor,font:{size:valFontSz}}, grid:{display:gridShow,color:gridCol}, border:{display:false}, max:pct?100:undefined},
+                 y:{stacked, display:catShow, ticks:{color:catColor,font:{size:catFontSz}}, grid:{display:false}, border:{display:false}} } }
     });
   }
 
@@ -1772,18 +1907,18 @@ function renderVisualPreview(vk, canvas, isModal) {
     const stacked  = vk==='stackedColumnChart'||vk==='hundredPercentStackedColumnChart';
     const pct      = vk==='hundredPercentStackedColumnChart';
     const datasets = vk==='columnChart'
-      ? [{ label:'A', data:SD1, backgroundColor:col(0) }]
+      ? [{ label:'A', data:SD1, backgroundColor:sc(0) }]
       : [
-          { label:'A', data:SD1, backgroundColor:col(0) },
-          { label:'B', data:SD2, backgroundColor:col(1) },
-          { label:'C', data:SD3, backgroundColor:col(2) },
+          { label:'A', data:SD1, backgroundColor:sc(0) },
+          { label:'B', data:SD2, backgroundColor:sc(1) },
+          { label:'C', data:SD3, backgroundColor:sc(2) },
         ];
     return new Chart(ctx,{
       type:'bar',
       data:{ labels:SL, datasets },
       options:{ ...baseOpts,
-        scales:{ x:{stacked,ticks:{color:axisCol,font:{size:fontSize}},grid:{display:false}, border:{display:false}},
-                 y:{stacked,ticks:{color:axisCol,font:{size:fontSize}},grid:{display:gridShow,color:gridCol}, border:{display:false}, max:pct?100:undefined} } }
+        scales:{ x:{stacked, display:catShow, ticks:{color:catColor,font:{size:catFontSz}}, grid:{display:false}, border:{display:false}},
+                 y:{stacked, display:valShow, ticks:{color:valColor,font:{size:valFontSz}}, grid:{display:gridShow,color:gridCol}, border:{display:false}, max:pct?100:undefined} } }
     });
   }
 
@@ -1794,12 +1929,12 @@ function renderVisualPreview(vk, canvas, isModal) {
     return new Chart(ctx,{
       type:'line',
       data:{ labels:SL, datasets:[
-        { label:'A', data:SD1, borderColor:col(0), backgroundColor:'transparent', borderWidth:sw, pointRadius:pm, tension:0 },
-        { label:'B', data:SD2, borderColor:col(1), backgroundColor:'transparent', borderWidth:sw, pointRadius:pm, tension:0 },
+        { label:'A', data:SD1, borderColor:sc(0), backgroundColor:'transparent', borderWidth:sw, pointRadius:pm, tension:0 },
+        { label:'B', data:SD2, borderColor:sc(1), backgroundColor:'transparent', borderWidth:sw, pointRadius:pm, tension:0 },
       ]},
       options:{ ...baseOpts, scales:{
-        x:{ticks:{color:axisCol,font:{size:fontSize}},grid:{display:false},border:{display:true,color:'#ccc'}},
-        y:{ticks:{color:axisCol,font:{size:fontSize}},grid:{display:gridShow,color:gridCol},border:{display:false}}
+        x:{display:catShow,ticks:{color:catColor,font:{size:catFontSz}},grid:{display:false},border:{display:true,color:'#ccc'}},
+        y:{display:valShow,ticks:{color:valColor,font:{size:valFontSz}},grid:{display:gridShow,color:gridCol},border:{display:false}}
       }}
     });
   }
@@ -1810,12 +1945,12 @@ function renderVisualPreview(vk, canvas, isModal) {
     return new Chart(ctx,{
       type:'line',
       data:{ labels:SL, datasets:[
-        { label:'A', data:SD1, borderColor:col(0), backgroundColor:col(0)+'40', borderWidth:sw, fill:true, tension:0, pointRadius:0 },
-        { label:'B', data:SD2, borderColor:col(1), backgroundColor:col(1)+'40', borderWidth:sw, fill:true, tension:0, pointRadius:0 },
+        { label:'A', data:SD1, borderColor:sc(0), backgroundColor:hexAlpha(col(0),0.25), borderWidth:sw, fill:true, tension:0, pointRadius:0 },
+        { label:'B', data:SD2, borderColor:sc(1), backgroundColor:hexAlpha(col(1),0.25), borderWidth:sw, fill:true, tension:0, pointRadius:0 },
       ]},
       options:{ ...baseOpts, scales:{
-        x:{ticks:{color:axisCol,font:{size:fontSize}},grid:{display:false},border:{display:true,color:'#ccc'}},
-        y:{ticks:{color:axisCol,font:{size:fontSize}},grid:{display:gridShow,color:gridCol},border:{display:false}}
+        x:{display:catShow,ticks:{color:catColor,font:{size:catFontSz}},grid:{display:false},border:{display:true,color:'#ccc'}},
+        y:{display:valShow,ticks:{color:valColor,font:{size:valFontSz}},grid:{display:gridShow,color:gridCol},border:{display:false}}
       }}
     });
   }
@@ -1826,29 +1961,29 @@ function renderVisualPreview(vk, canvas, isModal) {
     return new Chart(ctx,{
       type:'line',
       data:{ labels:SL, datasets:[
-        { label:'A', data:SD1, borderColor:col(0), backgroundColor:col(0)+'70', fill:true, tension:0, pointRadius:0, borderWidth:1.5 },
-        { label:'B', data:SD2, borderColor:col(1), backgroundColor:col(1)+'70', fill:true, tension:0, pointRadius:0, borderWidth:1.5 },
-        { label:'C', data:SD3, borderColor:col(2), backgroundColor:col(2)+'70', fill:true, tension:0, pointRadius:0, borderWidth:1.5 },
+        { label:'A', data:SD1, borderColor:sc(0), backgroundColor:hexAlpha(col(0),0.45), fill:true, tension:0, pointRadius:0, borderWidth:1.5 },
+        { label:'B', data:SD2, borderColor:sc(1), backgroundColor:hexAlpha(col(1),0.45), fill:true, tension:0, pointRadius:0, borderWidth:1.5 },
+        { label:'C', data:SD3, borderColor:sc(2), backgroundColor:hexAlpha(col(2),0.45), fill:true, tension:0, pointRadius:0, borderWidth:1.5 },
       ]},
       options:{ ...baseOpts, scales:{
-        x:{stacked:true,ticks:{color:axisCol,font:{size:fontSize}},grid:{display:false},border:{display:true,color:'#ccc'}},
-        y:{stacked:true,ticks:{color:axisCol,font:{size:fontSize}},grid:{display:gridShow,color:gridCol},border:{display:false},max:pct?100:undefined}
+        x:{stacked:true,display:catShow,ticks:{color:catColor,font:{size:catFontSz}},grid:{display:false},border:{display:true,color:'#ccc'}},
+        y:{stacked:true,display:valShow,ticks:{color:valColor,font:{size:valFontSz}},grid:{display:gridShow,color:gridCol},border:{display:false},max:pct?100:undefined}
       }}
     });
   }
 
-  // ── Ribbon chart (stacked column with connector lines effect) ──
+  // ── Ribbon chart ──
   if (vk==='ribbonChart') {
     return new Chart(ctx,{
       type:'bar',
       data:{ labels:SL, datasets:[
-        { label:'A', data:SD1, backgroundColor:col(0), stack:'s' },
-        { label:'B', data:SD2, backgroundColor:col(1), stack:'s' },
-        { label:'C', data:SD3, backgroundColor:col(2), stack:'s' },
+        { label:'A', data:SD1, backgroundColor:sc(0), stack:'s' },
+        { label:'B', data:SD2, backgroundColor:sc(1), stack:'s' },
+        { label:'C', data:SD3, backgroundColor:sc(2), stack:'s' },
       ]},
       options:{ ...baseOpts, scales:{
-        x:{stacked:true,ticks:{color:axisCol,font:{size:fontSize}},grid:{display:false},border:{display:false}},
-        y:{stacked:true,ticks:{color:axisCol,font:{size:fontSize}},grid:{display:gridShow,color:gridCol},border:{display:false}}
+        x:{stacked:true,display:catShow,ticks:{color:catColor,font:{size:catFontSz}},grid:{display:false},border:{display:false}},
+        y:{stacked:true,display:valShow,ticks:{color:valColor,font:{size:valFontSz}},grid:{display:gridShow,color:gridCol},border:{display:false}}
       }}
     });
   }
@@ -1866,8 +2001,8 @@ function renderVisualPreview(vk, canvas, isModal) {
         { data:[40,15,25,10,30,70], backgroundColor:bgs }
       ]},
       options:{ ...baseOpts, scales:{
-        x:{stacked:true,ticks:{color:axisCol,font:{size:fontSize}},grid:{display:false},border:{display:false}},
-        y:{stacked:true,ticks:{color:axisCol,font:{size:fontSize}},grid:{display:gridShow,color:gridCol},border:{display:false}}
+        x:{stacked:true,display:catShow,ticks:{color:catColor,font:{size:catFontSz}},grid:{display:false},border:{display:false}},
+        y:{stacked:true,display:valShow,ticks:{color:valColor,font:{size:valFontSz}},grid:{display:gridShow,color:gridCol},border:{display:false}}
       }}
     });
   }
@@ -1877,12 +2012,12 @@ function renderVisualPreview(vk, canvas, isModal) {
     return new Chart(ctx,{
       type:'scatter',
       data:{ datasets:[
-        { label:'A', backgroundColor:col(0)+'cc', data:[{x:10,y:42},{x:25,y:68},{x:40,y:55},{x:55,y:80},{x:70,y:63},{x:85,y:91}] },
-        { label:'B', backgroundColor:col(1)+'cc', data:[{x:15,y:30},{x:30,y:45},{x:45,y:60},{x:60,y:35},{x:75,y:70},{x:90,y:50}] },
+        { label:'A', backgroundColor:sc(0), data:[{x:10,y:42},{x:25,y:68},{x:40,y:55},{x:55,y:80},{x:70,y:63},{x:85,y:91}] },
+        { label:'B', backgroundColor:sc(1), data:[{x:15,y:30},{x:30,y:45},{x:45,y:60},{x:60,y:35},{x:75,y:70},{x:90,y:50}] },
       ]},
       options:{ ...baseOpts, scales:{
-        x:{ticks:{color:axisCol,font:{size:fontSize}},grid:{display:gridShow,color:gridCol}},
-        y:{ticks:{color:axisCol,font:{size:fontSize}},grid:{display:gridShow,color:gridCol}}
+        x:{display:catShow,ticks:{color:catColor,font:{size:catFontSz}},grid:{display:gridShow,color:gridCol}},
+        y:{display:valShow,ticks:{color:valColor,font:{size:valFontSz}},grid:{display:gridShow,color:gridCol}}
       }}
     });
   }
@@ -1891,7 +2026,7 @@ function renderVisualPreview(vk, canvas, isModal) {
   if (vk==='pieChart') {
     return new Chart(ctx,{
       type:'pie',
-      data:{ labels:SL, datasets:[{ data:SD1, backgroundColor:colors }] },
+      data:{ labels:SL, datasets:[{ data:SD1, backgroundColor:colors.map((c,i)=>sc(i)) }] },
       options:{ ...baseOpts, cutout:0 }
     });
   }
@@ -1901,7 +2036,7 @@ function renderVisualPreview(vk, canvas, isModal) {
     const ir = rcv(vk,'innerRadius','innerRadiusRatio',50);
     return new Chart(ctx,{
       type:'doughnut',
-      data:{ labels:SL, datasets:[{ data:SD1, backgroundColor:colors }] },
+      data:{ labels:SL, datasets:[{ data:SD1, backgroundColor:colors.map((c,i)=>sc(i)) }] },
       options:{ ...baseOpts, cutout:`${ir}%` }
     });
   }
@@ -1912,14 +2047,14 @@ function renderVisualPreview(vk, canvas, isModal) {
     return new Chart(ctx,{
       type:'bar',
       data:{ labels:SL, datasets:[
-        { type:'bar',  label:'Col A', data:SD1, backgroundColor:col(0), yAxisID:'y' },
-        { type:'bar',  label:'Col B', data:SD2, backgroundColor:col(1), yAxisID:'y' },
-        { type:'line', label:'Line',  data:[60,72,65,85,70,95], borderColor:col(2), backgroundColor:'transparent', borderWidth:2, pointRadius:3, yAxisID:'y2', tension:0 },
+        { type:'bar',  label:'Col A', data:SD1, backgroundColor:sc(0), yAxisID:'y' },
+        { type:'bar',  label:'Col B', data:SD2, backgroundColor:sc(1), yAxisID:'y' },
+        { type:'line', label:'Line',  data:[60,72,65,85,70,95], borderColor:sc(2), backgroundColor:'transparent', borderWidth:2, pointRadius:3, yAxisID:'y2', tension:0 },
       ]},
       options:{ ...baseOpts, scales:{
-        x:{stacked,ticks:{color:axisCol,font:{size:fontSize}},grid:{display:false},border:{display:false}},
-        y:{stacked,ticks:{color:axisCol,font:{size:fontSize}},grid:{display:gridShow,color:gridCol},border:{display:false},position:'left'},
-        y2:{ticks:{color:col(2),font:{size:fontSize}},grid:{display:false},border:{display:false},position:'right'}
+        x:{stacked,display:catShow,ticks:{color:catColor,font:{size:catFontSz}},grid:{display:false},border:{display:false}},
+        y:{stacked,display:valShow,ticks:{color:valColor,font:{size:valFontSz}},grid:{display:gridShow,color:gridCol},border:{display:false},position:'left'},
+        y2:{display:valShow,ticks:{color:sc(2),font:{size:valFontSz}},grid:{display:false},border:{display:false},position:'right'}
       }}
     });
   }
@@ -1969,28 +2104,33 @@ function renderVisualPreview(vk, canvas, isModal) {
     return null;
   }
 
-  // ── Card (canvas 2D) ──
-  if (vk==='card'||vk==='cardVisual') {
-    const fc = rcv(vk,'dataLabels','color','#0F4C81');
-    const fs = Math.min(rcv(vk,'dataLabels','fontSize',32),H*0.45);
+  // ── Card / Card (New) (canvas 2D) ──
+  if (vk==='cardVisual') {
+    const fc = rcv(vk,'calloutValue','color', rcv(vk,'dataLabels','color','#0F4C81'));
+    const fs = Math.min(rcv(vk,'calloutValue','fontSize', rcv(vk,'dataLabels','fontSize',32)), H*0.45);
+    const catC = rcv(vk,'categoryLabels','fontColor', rcv(vk,'categoryLabel','color','#666666'));
+    const catFs = rcv(vk,'categoryLabels','fontSize', 12);
+    if (bgShow) { ctx.fillStyle=hexAlpha(bgColor,bgAlpha); ctx.fillRect(0,0,W,H); }
     ctx.fillStyle=fc; ctx.font=`300 ${fs}px Segoe UI`; ctx.textAlign='center';
-    ctx.fillText('$1,284',W/2,H/2+fs*0.35);
-    ctx.fillStyle='#888'; ctx.font=`${fontSize+2}px Segoe UI`;
-    ctx.fillText('Total Revenue',W/2,H/2+fs*0.35+20);
+    ctx.fillText('$1,284',W/2,H*0.5+fs*0.35);
+    ctx.fillStyle=catC; ctx.font=`${catFs}px Segoe UI`;
+    ctx.fillText('Total Revenue',W/2,H*0.5+fs*0.35+catFs+4);
     return null;
   }
 
   // ── Multi-row card (canvas 2D) ──
   if (vk==='multiRowCard') {
     const barColor = rcv(vk,'bar','color','#1F8AC0');
+    const valColor2 = rcv(vk,'dataLabels','color','#0F4C81');
+    const catC2  = rcv(vk,'categoryLabels','fontColor','#666666');
     const rows=[['Revenue','$1,284'],['Customers','842'],['Orders','1,203']];
     const rh=H/rows.length;
     rows.forEach(([lbl,val],i)=>{
       const y=i*rh;
       ctx.fillStyle=barColor; ctx.fillRect(0,y+2,4,rh-4);
-      ctx.fillStyle='#888'; ctx.font=`${fontSize}px Segoe UI`; ctx.textAlign='left';
+      ctx.fillStyle=catC2; ctx.font=`${fontSize}px Segoe UI`; ctx.textAlign='left';
       ctx.fillText(lbl,12,y+rh*0.42);
-      ctx.fillStyle=rcv(vk,'dataLabels','color','#0F4C81'); ctx.font=`bold ${fontSize+3}px Segoe UI`;
+      ctx.fillStyle=valColor2; ctx.font=`bold ${fontSize+3}px Segoe UI`;
       ctx.fillText(val,12,y+rh*0.78);
       if(i<rows.length-1){ ctx.strokeStyle='#eee'; ctx.beginPath(); ctx.moveTo(0,y+rh); ctx.lineTo(W,y+rh); ctx.stroke(); }
     });
@@ -1999,15 +2139,14 @@ function renderVisualPreview(vk, canvas, isModal) {
 
   // ── KPI (canvas 2D) ──
   if (vk==='kpi') {
-    const fc = rcv(vk,'dataLabels','color','#0F4C81');
-    const tc = rcv(vk,'trendline','color','#1F8AC0');
-    ctx.fillStyle=fc; ctx.font=`300 ${H*0.32}px Segoe UI`; ctx.textAlign='center';
+    const fc2 = rcv(vk,'dataLabels','color','#0F4C81');
+    const tc2 = rcv(vk,'trendline','color','#1F8AC0');
+    ctx.fillStyle=fc2; ctx.font=`300 ${H*0.32}px Segoe UI`; ctx.textAlign='center';
     ctx.fillText('84.2%',W/2,H*0.48);
     ctx.fillStyle='#2A9D8F'; ctx.font=`bold ${fontSize+2}px Segoe UI`;
     ctx.fillText('▲ +5.3%  vs target',W/2,H*0.65);
-    // mini trend line
     const pts=[0.4,0.55,0.45,0.6,0.5,0.7,0.6,0.8,0.75,0.9];
-    ctx.beginPath(); ctx.strokeStyle=tc; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.strokeStyle=tc2; ctx.lineWidth=2;
     pts.forEach((v,i)=>{ const x=W*0.1+i*(W*0.8/9), y=H*(1-v*0.25); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
     ctx.stroke();
     return null;
@@ -2016,15 +2155,18 @@ function renderVisualPreview(vk, canvas, isModal) {
   // ── Slicer (canvas 2D) ──
   if (['slicer','advancedSlicerVisual','listSlicer'].includes(vk)) {
     const hc = rcv(vk,'header','fontColor','#0F4C81');
+    const hbg= rcv(vk,'header','background','#FFFFFF');
     const ic = rcv(vk,'items','fontColor','#333333');
+    const selColor = rcv(vk,'items','background', col(0));
+    if (hbg !== '#FFFFFF') { ctx.fillStyle=hbg; ctx.fillRect(0,0,W,30); }
     ctx.fillStyle=hc; ctx.font=`bold ${fontSize+2}px Segoe UI`; ctx.textAlign='left';
     ctx.fillText('Region',8,22);
-    ctx.strokeStyle='#e0e0e0'; ctx.beginPath(); ctx.moveTo(0,28); ctx.lineTo(W,28); ctx.stroke();
+    ctx.strokeStyle='#e0e0e0'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(0,28); ctx.lineTo(W,28); ctx.stroke();
     const items=['North','South','East','West','Central'];
     items.slice(0,4).forEach((item,i)=>{
       const y=38+i*26;
-      ctx.strokeStyle='#1f8ac0'; ctx.strokeRect(10,y-11,13,13);
-      if(i<2){ ctx.fillStyle='#1f8ac0'; ctx.fillRect(12,y-9,9,9); }
+      ctx.strokeStyle=col(0); ctx.lineWidth=1.5; ctx.strokeRect(10,y-11,13,13);
+      if(i<2){ ctx.fillStyle=col(0); ctx.fillRect(12,y-9,9,9); }
       ctx.fillStyle=ic; ctx.font=`${fontSize+1}px Segoe UI`; ctx.textAlign='left';
       ctx.fillText(item,30,y);
     });
