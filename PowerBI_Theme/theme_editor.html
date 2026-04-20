@@ -40,10 +40,15 @@
   #sidebar-search::placeholder { color: #7aadcc; }
   #visual-list {
     list-style: none;
-    overflow-y: auto;
+    overflow-y: scroll;
     flex: 1;
     padding-bottom: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: #1a5f99 transparent;
   }
+  #visual-list::-webkit-scrollbar { width: 4px; }
+  #visual-list::-webkit-scrollbar-track { background: transparent; }
+  #visual-list::-webkit-scrollbar-thumb { background: #1a5f99; border-radius: 2px; }
   #visual-list li {
     padding: 9px 16px;
     cursor: pointer;
@@ -65,15 +70,22 @@
   #visual-list li.active .badge { background: #0f4c81; }
 
   /* ── MAIN CONTENT (settings + JSON) ── */
-  #main { flex: 1; display: flex; overflow: hidden; }
+  #main { flex: 1; display: flex; overflow: hidden; min-width: 0; }
 
-  /* Settings panel placeholder */
+  /* Settings panel */
   #settings-panel {
     flex: 1;
     padding: 24px;
-    overflow-y: auto;
+    overflow-y: scroll;
+    overflow-x: hidden;
     background: #f4f6f9;
+    min-width: 0;
+    scrollbar-width: thin;
+    scrollbar-color: #c0d4e8 transparent;
   }
+  #settings-panel::-webkit-scrollbar { width: 6px; }
+  #settings-panel::-webkit-scrollbar-track { background: transparent; }
+  #settings-panel::-webkit-scrollbar-thumb { background: #c0d4e8; border-radius: 3px; }
   #settings-panel h1 {
     font-size: 20px;
     font-weight: 700;
@@ -85,6 +97,65 @@
     color: #888;
     margin-bottom: 20px;
   }
+  /* Visual cards grid */
+  #visual-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-top: 4px;
+  }
+  .vis-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .vis-card:hover { border-color: #1f8ac0; box-shadow: 0 3px 10px rgba(31,138,192,.15); }
+  .vis-card .vc-name { font-size: 13px; font-weight: 700; color: #0f4c81; margin-bottom: 8px; }
+  .vis-card .vc-key  { font-size: 10px; color: #aaa; font-family: monospace; margin-bottom: 8px; }
+  .vis-card .vc-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .vc-tag {
+    font-size: 10px; padding: 2px 7px;
+    border-radius: 10px; background: #eaf2fb; color: #1f8ac0;
+    white-space: nowrap;
+  }
+  .vc-tag.off { background: #f5f5f5; color: #aaa; }
+
+  /* ── MODAL ── */
+  #modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.45); z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  #modal-overlay.open { display: flex; }
+  #modal {
+    background: #fff; border-radius: 12px;
+    width: min(680px, 94vw); max-height: 86vh;
+    display: flex; flex-direction: column;
+    box-shadow: 0 8px 40px rgba(0,0,0,.25);
+    overflow: hidden;
+  }
+  #modal-header {
+    padding: 16px 20px; background: #0f4c81; color: #fff;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  #modal-header h2 { font-size: 16px; margin: 0; }
+  #modal-header .modal-key { font-size: 11px; opacity: .7; font-family: monospace; margin-top: 2px; }
+  #modal-close {
+    background: none; border: none; color: #fff;
+    font-size: 22px; cursor: pointer; line-height: 1; padding: 0 4px;
+  }
+  #modal-body {
+    flex: 1; overflow-y: scroll; padding: 16px 20px;
+    scrollbar-width: thin; scrollbar-color: #c0d4e8 transparent;
+  }
+  #modal-body::-webkit-scrollbar { width: 6px; }
+  #modal-body::-webkit-scrollbar-thumb { background: #c0d4e8; border-radius: 3px; }
+
   .placeholder-msg {
     color: #aaa;
     font-size: 14px;
@@ -166,14 +237,21 @@
   .sub-card { background: #f8fafd; border: 1px solid #e0eaf5; border-radius: 6px; padding: 8px 12px; margin-top: 4px; }
   .sub-card-title { font-size: 11px; font-weight: 600; color: #1f8ac0; margin-bottom: 6px; }
 
-  /* JSON preview placeholder */
+  /* JSON panel — hidden by default, toggled via button */
   #json-panel {
-    width: 380px;
-    min-width: 280px;
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
     background: #1e1e2e;
     color: #cdd6f4;
     display: flex;
     flex-direction: column;
+    border-left: none;
+    transition: width .25s ease, min-width .25s ease;
+  }
+  #json-panel.open {
+    width: 400px;
+    min-width: 300px;
     border-left: 1px solid #2a2a3e;
   }
   #json-panel-header {
@@ -184,6 +262,7 @@
     font-weight: 600;
     letter-spacing: .05em;
     text-transform: uppercase;
+    white-space: nowrap;
   }
   .json-key  { color: #89b4fa; }
   .json-str  { color: #a6e3a1; }
@@ -210,6 +289,20 @@
   <ul id="visual-list"></ul>
 </nav>
 
+<!-- EDIT MODAL -->
+<div id="modal-overlay">
+  <div id="modal">
+    <div id="modal-header">
+      <div>
+        <h2 id="modal-title">Visual</h2>
+        <div class="modal-key" id="modal-key"></div>
+      </div>
+      <button id="modal-close" onclick="closeEditModal()">&#x2715;</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
 <!-- MAIN -->
 <div id="main">
   <section id="settings-panel">
@@ -231,9 +324,12 @@
       <span style="font-size:12px;color:#444;">Data Colors:</span>
       <div id="data-colors" style="display:flex;gap:4px;flex-wrap:wrap;"></div>
     </div>
-    <h1 id="panel-title">Select a Visual</h1>
-    <p class="subtitle" id="panel-subtitle">Choose a visual from the sidebar to edit its theme settings.</p>
-    <p class="placeholder-msg" id="panel-placeholder">← Pick a visual to get started</p>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <h1 id="panel-title" style="margin:0;">All Visuals</h1>
+      <button id="json-toggle-btn" onclick="toggleJSON()" style="font-size:12px;padding:5px 12px;border-radius:6px;border:1px solid #1f8ac0;background:#fff;color:#1f8ac0;cursor:pointer;font-weight:600;">{ } Show JSON</button>
+    </div>
+    <p class="subtitle" id="panel-subtitle" style="margin-bottom:16px;">Click any visual card to edit its theme settings.</p>
+    <div id="visual-grid"></div>
   </section>
 
   <aside id="json-panel">
@@ -526,6 +622,13 @@ function selectVisual(key, label, el) {
   updateJSON();
 }
 
+function toggleJSON() {
+  const panel = document.getElementById('json-panel');
+  const btn = document.getElementById('json-toggle-btn');
+  panel.classList.toggle('open');
+  btn.textContent = panel.classList.contains('open') ? '{ } Hide JSON' : '{ } Show JSON';
+}
+
 function copyJSON() {
   const text = JSON.stringify(THEME, null, 2);
   navigator.clipboard.writeText(text).then(() => alert('Full theme JSON copied!'));
@@ -560,8 +663,273 @@ function initGlobalBar() {
   });
 }
 
+// ── VALIDATION rules per property name ──
+const VALIDATION = {
+  fontSize:              { min: 6,   max: 96,  step: 1 },
+  transparency:          { min: 0,   max: 100, step: 1 },
+  strokeWidth:           { min: 0,   max: 20,  step: 1 },
+  weight:                { min: 1,   max: 10,  step: 1 },
+  outlineWeight:         { min: 1,   max: 10,  step: 1 },
+  gridHorizontalWeight:  { min: 1,   max: 10,  step: 1 },
+  markerSize:            { min: 1,   max: 20,  step: 1 },
+  thickness:             { min: 1,   max: 10,  step: 1 },
+  arcAngle:              { min: 60,  max: 270, step: 1 },
+  startAngle:            { min: -180,max: 0,   step: 1 },
+  innerRadiusRatio:      { min: 0,   max: 100, step: 1 },
+  minBubbleSize:         { min: 1,   max: 100, step: 1 },
+  maxBubbleSize:         { min: 1,   max: 200, step: 1 },
+  rowPadding:            { min: 0,   max: 20,  step: 1 },
+  steppedLayoutIndentation: { min: 0, max: 100, step: 1 },
+  labelDisplayUnits:     { min: 0,   max: 4,   step: 1 },
+};
+
+// ── Modal open/close ──
+function openEditModal(key, label) {
+  currentVisual = key;
+  document.getElementById('modal-title').textContent = label;
+  document.getElementById('modal-key').textContent = `visualStyles["${key}"]["*"]`;
+  updateJSON();
+
+  const body = document.getElementById('modal-body');
+  body.innerHTML = '';
+
+  const style = THEME.visualStyles[key];
+  if (!style || !style['*']) {
+    body.innerHTML = '<p style="color:#aaa;padding:20px;">No settings defined for this visual.</p>';
+  } else {
+    Object.entries(style['*']).forEach(([cardName, cardArr]) => {
+      if (!Array.isArray(cardArr) || !cardArr[0]) return;
+      body.appendChild(buildModalCard(cardName, cardArr[0], key));
+    });
+  }
+
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  buildGrid(); // refresh tags on cards
+}
+
+// close on overlay click
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeEditModal();
+});
+
+function buildModalCard(cardName, props, visualKey) {
+  const wrap = document.createElement('div');
+  wrap.className = 'card';
+  wrap.style.marginBottom = '14px';
+
+  const header = document.createElement('div');
+  header.className = 'card-header open';
+  header.innerHTML = `${cardName} <span class="arrow" style="transform:rotate(90deg)">▶</span>`;
+  header.addEventListener('click', () => {
+    header.classList.toggle('open');
+    body.classList.toggle('open');
+    header.querySelector('.arrow').style.transform = header.classList.contains('open') ? 'rotate(90deg)' : '';
+  });
+
+  const body = document.createElement('div');
+  body.className = 'card-body open';
+  body.appendChild(buildPropRows(props, visualKey, cardName));
+
+  wrap.appendChild(header);
+  wrap.appendChild(body);
+  return wrap;
+}
+
+function buildPropRows(props, visualKey, cardName) {
+  const frag = document.createDocumentFragment();
+  Object.entries(props).forEach(([key, val]) => {
+    // nested array (e.g. gridlines: [{show, color}])
+    if (Array.isArray(val) && val.length > 0 && typeof val[0] === 'object') {
+      const sub = document.createElement('div');
+      sub.className = 'sub-card';
+      const t = document.createElement('div');
+      t.className = 'sub-card-title';
+      t.textContent = key;
+      sub.appendChild(t);
+      sub.appendChild(buildPropRows(val[0], visualKey, cardName + '.' + key));
+      const row = document.createElement('div');
+      row.className = 'prop-row';
+      row.appendChild(sub);
+      frag.appendChild(row);
+      return;
+    }
+    // solid color object
+    if (isSolidColor(val)) {
+      frag.appendChild(makeRow(key, makeColorControl(val, newVal => {
+        props[key] = newVal; updateJSON();
+      })));
+      return;
+    }
+    // plain object (e.g. background: {solid:{color}}) already handled above
+    if (typeof val === 'object') return;
+
+    if (typeof val === 'boolean') {
+      frag.appendChild(makeRow(key, makeToggle(val, v => { props[key] = v; updateJSON(); })));
+    } else if (typeof val === 'number') {
+      frag.appendChild(makeRow(key, makeNumber(key, val, v => { props[key] = v; updateJSON(); })));
+    } else if (typeof val === 'string') {
+      const enumKey = Object.keys(ENUMS).find(k => k === key || ENUMS[k].includes(val));
+      if (enumKey) {
+        frag.appendChild(makeRow(key, makeDropdown(enumKey, val, v => { props[key] = v; updateJSON(); })));
+      } else {
+        frag.appendChild(makeRow(key, makeText(key, val, v => { props[key] = v; updateJSON(); })));
+      }
+    }
+  });
+  return frag;
+}
+
+function makeRow(label, control) {
+  const row = document.createElement('div');
+  row.className = 'prop-row';
+  const lbl = document.createElement('span');
+  lbl.className = 'prop-label';
+  lbl.textContent = label;
+  row.appendChild(lbl);
+  row.appendChild(control);
+  return row;
+}
+
+function makeToggle(val, onChange) {
+  const wrap = document.createElement('div');
+  wrap.className = 'prop-control';
+  const label = document.createElement('label');
+  label.className = 'toggle';
+  const inp = document.createElement('input');
+  inp.type = 'checkbox'; inp.checked = val;
+  inp.addEventListener('change', () => onChange(inp.checked));
+  const slider = document.createElement('span');
+  slider.className = 'toggle-slider';
+  label.appendChild(inp); label.appendChild(slider);
+  wrap.appendChild(label);
+  return wrap;
+}
+
+function makeColorControl(val, onChange) {
+  const wrap = document.createElement('div');
+  wrap.className = 'prop-control';
+  const cw = document.createElement('div');
+  cw.className = 'color-wrap';
+  const inp = document.createElement('input');
+  inp.type = 'color';
+  inp.value = getSolidColor(val).toLowerCase();
+  const hex = document.createElement('span');
+  hex.className = 'color-hex';
+  hex.textContent = inp.value.toUpperCase();
+  inp.addEventListener('input', () => {
+    hex.textContent = inp.value.toUpperCase();
+    onChange({ solid: { color: inp.value.toUpperCase() } });
+  });
+  cw.appendChild(inp); cw.appendChild(hex);
+  wrap.appendChild(cw);
+  return wrap;
+}
+
+function makeNumber(key, val, onChange) {
+  const wrap = document.createElement('div');
+  wrap.className = 'prop-control';
+  const rule = VALIDATION[key] || {};
+  const inp = document.createElement('input');
+  inp.type = 'number'; inp.className = 'prop-num';
+  inp.value = val;
+  if (rule.min !== undefined) inp.min = rule.min;
+  if (rule.max !== undefined) inp.max = rule.max;
+  if (rule.step)              inp.step = rule.step;
+  inp.addEventListener('change', () => {
+    let v = Number(inp.value);
+    if (rule.min !== undefined && v < rule.min) { v = rule.min; inp.value = v; }
+    if (rule.max !== undefined && v > rule.max) { v = rule.max; inp.value = v; }
+    onChange(v);
+  });
+  wrap.appendChild(inp);
+  return wrap;
+}
+
+function makeDropdown(enumKey, val, onChange) {
+  const wrap = document.createElement('div');
+  wrap.className = 'prop-control';
+  const sel = document.createElement('select');
+  sel.className = 'prop-select';
+  ENUMS[enumKey].forEach(opt => {
+    const o = document.createElement('option');
+    o.value = opt; o.textContent = opt;
+    if (opt === val) o.selected = true;
+    sel.appendChild(o);
+  });
+  sel.addEventListener('change', () => onChange(sel.value));
+  wrap.appendChild(sel);
+  return wrap;
+}
+
+function makeText(key, val, onChange) {
+  const wrap = document.createElement('div');
+  wrap.className = 'prop-control';
+  const inp = document.createElement('input');
+  inp.type = 'text'; inp.className = 'prop-text';
+  inp.value = val; inp.maxLength = 100;
+  // validate: hex color strings must match pattern
+  if (key.toLowerCase().includes('color') || val.startsWith('#')) {
+    inp.pattern = '^#[0-9A-Fa-f]{6}$';
+    inp.title = 'Hex color e.g. #1F8AC0';
+    inp.style.fontFamily = 'monospace';
+  }
+  inp.addEventListener('change', () => {
+    if (inp.validity.valid) onChange(inp.value);
+    else inp.style.borderColor = '#e76f51';
+  });
+  inp.addEventListener('input', () => inp.style.borderColor = '');
+  wrap.appendChild(inp);
+  return wrap;
+}
+
+// ── Visual cards grid ──
+function buildGrid(filter) {
+  const grid = document.getElementById('visual-grid');
+  grid.innerHTML = '';
+  const term = (filter || '').toLowerCase();
+
+  Object.entries(VISUAL_LABELS).forEach(([key, label]) => {
+    if (term && !label.toLowerCase().includes(term) && !key.toLowerCase().includes(term)) return;
+    const style = THEME.visualStyles[key];
+    const cards = style && style['*'] ? Object.keys(style['*']) : [];
+
+    const card = document.createElement('div');
+    card.className = 'vis-card';
+    card.innerHTML = `
+      <div class="vc-name">${label}</div>
+      <div class="vc-key">${key}</div>
+      <div class="vc-tags">${cards.map(c => {
+        const props = style['*'][c][0] || {};
+        const isOff = props.show === false;
+        return `<span class="vc-tag${isOff ? ' off' : ''}">${c}</span>`;
+      }).join('')}</div>`;
+    card.addEventListener('click', () => openEditModal(key, label));
+    grid.appendChild(card);
+  });
+}
+
+// Sync sidebar search to grid
+document.getElementById("sidebar-search").addEventListener("input", e => {
+  buildSidebar(e.target.value);
+  buildGrid(e.target.value);
+});
+
+// Sidebar click now opens modal directly
+function selectVisual(key, label, el) {
+  document.querySelectorAll("#visual-list li").forEach(l => l.classList.remove("active"));
+  el.classList.add("active");
+  currentVisual = key;
+  updateJSON();
+  openEditModal(key, label);
+}
+
 // ── Init ──
 buildSidebar();
+buildGrid();
 initGlobalBar();
 </script>
 </body>
