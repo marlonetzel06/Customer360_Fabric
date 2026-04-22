@@ -1,0 +1,13 @@
+{
+  "name": "powerbi-theme-editor-tests",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report"
+  },
+  "dependencies": {
+    "chart.js": "^4.5.1"
+  }
+}
