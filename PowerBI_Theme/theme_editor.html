@@ -2301,33 +2301,75 @@ function renderVisualPreview(vk, canvas, isModal) {
 
   // ── Slicer (canvas 2D) ──
   if (['slicer','advancedSlicerVisual','listSlicer'].includes(vk)) {
-    const hc    = rcv(vk,'header','fontColor','#0F4C81');
-    const hbg   = rcv(vk,'header','background','#FFFFFF');
+    const hc      = rcv(vk,'header','fontColor','#0F4C81');
+    const hbg     = rcv(vk,'header','background','#FFFFFF');
     const hFontSz = rcv(vk,'header','fontSize', 12);
-    const hShow = rcv(vk,'header','show', true);
-    const ic    = rcv(vk,'items','fontColor','#333333');
-    const ibg   = rcv(vk,'items','background','#FFFFFF');
+    const hShow   = rcv(vk,'header','show', true);
+    const ic      = rcv(vk,'items','fontColor','#333333');
+    const ibg     = rcv(vk,'items','background','#FFFFFF');
     const iFontSz = rcv(vk,'items','fontSize', 11);
-    const sliderCol = rcv(vk,'slider','color', col(0));
-    const ty = titleH + 2;
+    const accentCol = rcv(vk,'slider','color', col(0));
+    const mode    = rcv(vk,'data','mode','VerticalList');
+    const ty      = titleH + 2;
     const headerH = hShow ? hFontSz + 10 : 0;
+
+    // header
     if (hShow) {
       ctx.fillStyle=hbg; ctx.fillRect(0,ty,W,headerH);
       ctx.fillStyle=hc; ctx.font=`bold ${hFontSz}px Segoe UI`; ctx.textAlign='left';
       ctx.fillText('Region',8,ty+hFontSz+1);
-      ctx.strokeStyle='#e0e0e0'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(0,ty+headerH); ctx.lineTo(W,ty+headerH); ctx.stroke();
+      ctx.strokeStyle='#e0e0e0'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(0,ty+headerH); ctx.lineTo(W,ty+headerH); ctx.stroke();
     }
-    const rowH = iFontSz + 10;
+
     const items=['North','South','East','West','Central'];
-    items.slice(0,Math.floor((H-ty-headerH-4)/rowH)).forEach((item,i)=>{
-      const y=ty+headerH+4+i*rowH;
-      ctx.fillStyle=ibg; ctx.fillRect(0,y-1,W,rowH-1);
-      const boxSz = Math.max(10, iFontSz);
-      ctx.strokeStyle=sliderCol; ctx.lineWidth=1.5; ctx.strokeRect(8,y,boxSz,boxSz);
-      if (i<2) { ctx.fillStyle=sliderCol; ctx.fillRect(10,y+2,boxSz-4,boxSz-4); }
+    const content_y = ty + headerH + 4;
+
+    if (mode === 'Dropdown') {
+      // Dropdown: a single select-box with a chevron
+      const bh = iFontSz + 12;
+      ctx.fillStyle=ibg; ctx.fillRect(8,content_y,W-16,bh);
+      ctx.strokeStyle=accentCol; ctx.lineWidth=1.5; ctx.strokeRect(8,content_y,W-16,bh);
       ctx.fillStyle=ic; ctx.font=`${iFontSz}px Segoe UI`; ctx.textAlign='left';
-      ctx.fillText(item,8+boxSz+6,y+iFontSz-1);
-    });
+      ctx.fillText(items[0],14,content_y+bh*0.68);
+      // chevron
+      const cx=W-18, cy=content_y+bh/2;
+      ctx.beginPath(); ctx.moveTo(cx-4,cy-2); ctx.lineTo(cx,cy+3); ctx.lineTo(cx+4,cy-2);
+      ctx.strokeStyle=ic; ctx.lineWidth=1.5; ctx.stroke();
+
+    } else if (mode === 'HorizontalList') {
+      // Horizontal: items side by side as pills
+      const pillH = iFontSz + 8, gap = 6;
+      let px = 8;
+      items.forEach((item, i) => {
+        const pw = ctx.measureText(item).width + 16;
+        const selected = i === 0;
+        ctx.fillStyle = selected ? accentCol : ibg;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(px, content_y, pw, pillH, 4);
+        else ctx.rect(px, content_y, pw, pillH);
+        ctx.fill();
+        ctx.strokeStyle = selected ? accentCol : '#ccc'; ctx.lineWidth=1; ctx.stroke();
+        ctx.fillStyle = selected ? '#fff' : ic;
+        ctx.font=`${iFontSz}px Segoe UI`; ctx.textAlign='center';
+        ctx.fillText(item, px + pw/2, content_y + pillH*0.7);
+        px += pw + gap;
+        if (px > W - 8) return;
+      });
+
+    } else {
+      // VerticalList (default): checkbox list
+      const rowH = iFontSz + 10;
+      items.slice(0, Math.floor((H - content_y) / rowH)).forEach((item, i) => {
+        const y = content_y + i * rowH;
+        ctx.fillStyle=ibg; ctx.fillRect(0,y-1,W,rowH-1);
+        const boxSz = Math.max(10, iFontSz);
+        ctx.strokeStyle=accentCol; ctx.lineWidth=1.5; ctx.strokeRect(8,y,boxSz,boxSz);
+        if (i < 2) { ctx.fillStyle=accentCol; ctx.fillRect(10,y+2,boxSz-4,boxSz-4); }
+        ctx.fillStyle=ic; ctx.font=`${iFontSz}px Segoe UI`; ctx.textAlign='left';
+        ctx.fillText(item, 8+boxSz+6, y+iFontSz-1);
+      });
+    }
     return null;
   }
 
