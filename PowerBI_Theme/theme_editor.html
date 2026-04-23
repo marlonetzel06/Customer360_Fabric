@@ -86,6 +86,52 @@
   #settings-panel::-webkit-scrollbar { width: 6px; }
   #settings-panel::-webkit-scrollbar-track { background: transparent; }
   #settings-panel::-webkit-scrollbar-thumb { background: #c0d4e8; border-radius: 3px; }
+  #app-headline {
+    font-size: 28px;
+    font-weight: 800;
+    color: #0f4c81;
+    letter-spacing: -0.5px;
+    margin: 0 0 18px 0;
+    line-height: 1.1;
+  }
+  #app-headline span { color: #1f8ac0; }
+  #app-headline small {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    color: #999;
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+  }
+  #global-bar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    padding: 2px 0;
+  }
+  #global-bar-header:hover { opacity: 0.8; }
+  #global-bar-toggle {
+    background: none;
+    border: 1px solid #c8d8ea;
+    border-radius: 5px;
+    font-size: 11px;
+    color: #0f4c81;
+    cursor: pointer;
+    padding: 2px 8px;
+    line-height: 1.4;
+  }
+  #global-bar-body {
+    max-height: 600px;
+    overflow: hidden;
+    transition: max-height 0.28s ease, opacity 0.2s ease;
+    opacity: 1;
+  }
+  #global-bar-body.collapsed {
+    max-height: 0;
+    opacity: 0;
+  }
   #settings-panel h1 {
     font-size: 20px;
     font-weight: 700;
@@ -341,8 +387,14 @@
 <!-- MAIN -->
 <div id="main">
   <section id="settings-panel">
+    <h1 id="app-headline">JSON <span>Designer</span><small>Power BI Theme Editor</small></h1>
     <!-- Global settings bar -->
     <div id="global-bar" style="background:#fff;border-radius:8px;padding:12px 16px;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.07);display:flex;flex-direction:column;gap:10px;">
+      <div id="global-bar-header" onclick="toggleGlobalBar()">
+        <span style="font-size:13px;font-weight:700;color:#0f4c81;">Global Settings</span>
+        <button id="global-bar-toggle">▼ Collapse</button>
+      </div>
+      <div id="global-bar-body">
       <!-- Row 1: Colors + Palette -->
       <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
         <span style="font-size:12px;font-weight:700;color:#0f4c81;min-width:80px;">Colors</span>
@@ -414,6 +466,7 @@
         <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;" title="fourthLevelElements — color for disabled and dimmed elements">Disabled <input type="color" id="g-fourthLevelElements" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;"></label>
         <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;" title="secondaryBackground — alternate row color in tables and secondary surfaces">Alt. Background <input type="color" id="g-secondaryBackground" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;"></label>
       </div>
+      </div><!-- /global-bar-body -->
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
       <h1 id="panel-title" style="margin:0;">All Visuals</h1>
@@ -1360,6 +1413,13 @@ function selectVisual(key, label, el) {
   currentVisual = key;
   renderCards(key);
   updateJSON();
+}
+
+function toggleGlobalBar() {
+  const body = document.getElementById('global-bar-body');
+  const btn  = document.getElementById('global-bar-toggle');
+  const collapsed = body.classList.toggle('collapsed');
+  btn.textContent = collapsed ? '▶ Expand' : '▼ Collapse';
 }
 
 function toggleJSON() {
