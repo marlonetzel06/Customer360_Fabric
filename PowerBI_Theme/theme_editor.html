@@ -1057,50 +1057,65 @@ const THEME = {"name":"Customer360 Theme","textClasses":{"title":{"fontFace":"Se
 
 // ── Visual display names ──
 const VISUAL_LABELS = {
-  "*":                            "Global (All Visuals)",
-  "barChart":                     "Bar Chart",
-  "clusteredBarChart":            "Clustered Bar Chart",
-  "stackedBarChart":              "Stacked Bar Chart",
-  "hundredPercentStackedBarChart":"100% Stacked Bar Chart",
-  "columnChart":                  "Column Chart",
-  "clusteredColumnChart":         "Clustered Column Chart",
-  "stackedColumnChart":           "Stacked Column Chart",
+  // Global
+  "*":                             "Global (All Visuals)",
+  // Bar charts
+  "barChart":                      "Bar Chart",
+  "clusteredBarChart":             "Clustered Bar Chart",
+  "stackedBarChart":               "Stacked Bar Chart",
+  "hundredPercentStackedBarChart": "100% Stacked Bar Chart",
+  // Column charts
+  "columnChart":                   "Column Chart",
+  "clusteredColumnChart":          "Clustered Column Chart",
+  "stackedColumnChart":            "Stacked Column Chart",
   "hundredPercentStackedColumnChart": "100% Stacked Column Chart",
-  "lineChart":                    "Line Chart",
-  "areaChart":                    "Area Chart",
-  "stackedAreaChart":             "Stacked Area Chart",
-  "ribbonChart":                  "Ribbon Chart",
-  "waterfallChart":               "Waterfall Chart",
-  "scatterChart":                 "Scatter Chart",
-  "pieChart":                     "Pie Chart",
-  "donutChart":                   "Donut Chart",
-  "treemap":                      "Treemap",
-  "map":                          "Map",
-  "filledMap":                    "Filled Map",
-  "funnel":                       "Funnel",
-  "gauge":                        "Gauge",
-  "multiRowCard":                 "Multi-Row Card",
-  "kpi":                          "KPI",
-  "slicer":                       "Slicer",
-  "tableEx":                      "Table",
-  "matrix":                       "Matrix",
-  "lineClusteredColumnComboChart":"Line & Clustered Column Combo",
-  "lineStackedColumnComboChart":  "Line & Stacked Column Combo",
-  "decompositionTree":            "Decomposition Tree",
-  "decompositionTreeVisual":      "Decomposition Tree (New)",
+  // Line & Area charts
+  "lineChart":                     "Line Chart",
+  "areaChart":                     "Area Chart",
+  "stackedAreaChart":              "Stacked Area Chart",
   "hundredPercentStackedAreaChart":"100% Stacked Area Chart",
-  "advancedSlicerVisual":         "Advanced Slicer",
-  "listSlicer":                   "List Slicer",
-  "pivotTable":                   "Pivot Table",
-  "scorecard":                    "Scorecard",
-  "cardVisual":                   "Card (New)",
-  "bookmarkNavigator":            "Bookmark Navigator",
-  "pageNavigator":                "Page Navigator",
-  "azureMap":                     "Azure Map",
-  "shapeMap":                     "Shape Map",
-  "shape":                        "Shape",
-  "textbox":                      "Text Box",
-  "actionButton":                 "Button",
+  // Combo charts
+  "lineClusteredColumnComboChart": "Line & Clustered Column Combo",
+  "lineStackedColumnComboChart":   "Line & Stacked Column Combo",
+  "ribbonChart":                   "Ribbon Chart",
+  // Other cartesian
+  "waterfallChart":                "Waterfall Chart",
+  "scatterChart":                  "Scatter Chart",
+  "funnel":                        "Funnel",
+  // Pie / Donut / Treemap
+  "pieChart":                      "Pie Chart",
+  "donutChart":                    "Donut Chart",
+  "treemap":                       "Treemap",
+  // Maps
+  "map":                           "Map",
+  "filledMap":                     "Filled Map",
+  "shapeMap":                      "Shape Map",
+  "azureMap":                      "Azure Map",
+  // Cards & KPI
+  "card":                          "Card",
+  "cardVisual":                    "Card (New)",
+  "multiRowCard":                  "Multi-Row Card",
+  "kpi":                           "KPI",
+  "gauge":                         "Gauge",
+  "scorecard":                     "Scorecard",
+  // Tables
+  "tableEx":                       "Table",
+  "matrix":                        "Matrix",
+  "pivotTable":                    "Pivot Table",
+  // Slicers
+  "slicer":                        "Slicer",
+  "advancedSlicerVisual":          "Advanced Slicer",
+  "listSlicer":                    "List Slicer",
+  // AI / Analytics
+  "decompositionTree":             "Decomposition Tree",
+  "decompositionTreeVisual":       "Decomposition Tree (New)",
+  // Navigation & Buttons
+  "bookmarkNavigator":             "Bookmark Navigator",
+  "pageNavigator":                 "Page Navigator",
+  "actionButton":                  "Button",
+  // Static elements
+  "textbox":                       "Text Box",
+  "shape":                         "Shape",
 };
 
 let currentVisual = null;
