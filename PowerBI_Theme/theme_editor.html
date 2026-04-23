@@ -123,8 +123,8 @@
   }
   .vis-card canvas.vc-canvas { display: block; }
   .vis-card .vc-info { padding: 10px 14px 12px; }
-  .vis-card .vc-name { font-size: 13px; font-weight: 700; color: #0f4c81; }
-  .vis-card .vc-key  { font-size: 10px; color: #aaa; font-family: monospace; margin-top: 2px; }
+  .vis-card .vc-name { font-size: 12px; font-weight: 500; color: #555; }
+  .vis-card .vc-key  { font-size: 10px; color: #bbb; font-family: monospace; margin-top: 2px; }
 
   /* ── MODAL ── */
   #modal-overlay {
@@ -1951,7 +1951,7 @@ function renderVisualPreview(vk, canvas, isModal) {
   const titleColor = rcv(vk,'title','fontColor','#0F4C81');
   const titleFontSz= Math.min(rcv(vk,'title','fontSize', 14), isModal?16:13);
   const titleBold  = rcv(vk,'title','bold', true);
-  const titleText  = rcv(vk,'title','text','') || 'My Report Title';
+  const titleText  = rcv(vk,'title','text','') || 'Title';
   const displayTitle = titleText.length > 28 ? titleText.slice(0,28)+'…' : titleText;
 
   // ── Background
