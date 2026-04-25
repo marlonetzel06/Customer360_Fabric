@@ -104,27 +104,38 @@ async function chartOpts(page) {
       titleColor:      p.title?.color,
       titleFontSize:   p.title?.font?.size,
       titleFontWeight: p.title?.font?.weight,
+      titleFontStyle:  p.title?.font?.style,
+      titleAlign:      p.title?.align,
       titleText:       p.title?.text,
       legendDisplay:   p.legend?.display,
       legendPosition:  p.legend?.position,
       legendColor:     p.legend?.labels?.color,
       legendFontSize:  p.legend?.labels?.font?.size,
-      xDisplay:      s.x?.display,
-      xTickColor:    s.x?.ticks?.color,
-      xTickFontSize: s.x?.ticks?.font?.size,
-      xGridDisplay:  s.x?.grid?.display,
-      xGridColor:    s.x?.grid?.color,
-      xTitleDisplay: s.x?.title?.display,
-      xTitleText:    s.x?.title?.text,
-      xTitleColor:   s.x?.title?.color,
-      yDisplay:      s.y?.display,
-      yTickColor:    s.y?.ticks?.color,
-      yTickFontSize: s.y?.ticks?.font?.size,
-      yGridDisplay:  s.y?.grid?.display,
-      yGridColor:    s.y?.grid?.color,
-      yTitleDisplay: s.y?.title?.display,
-      yTitleText:    s.y?.title?.text,
-      yTitleColor:   s.y?.title?.color,
+      legendFontWeight:p.legend?.labels?.font?.weight,
+      legendFontStyle: p.legend?.labels?.font?.style,
+      legendFamily:    p.legend?.labels?.font?.family,
+      xDisplay:        s.x?.display,
+      xTickColor:      s.x?.ticks?.color,
+      xTickFontSize:   s.x?.ticks?.font?.size,
+      xTickFontWeight: s.x?.ticks?.font?.weight,
+      xTickFontStyle:  s.x?.ticks?.font?.style,
+      xGridDisplay:    s.x?.grid?.display,
+      xGridColor:      s.x?.grid?.color,
+      xTitleDisplay:   s.x?.title?.display,
+      xTitleColor:     s.x?.title?.color,
+      xTitleFontSize:  s.x?.title?.font?.size,
+      xTitleFontWeight:s.x?.title?.font?.weight,
+      yDisplay:        s.y?.display,
+      yTickColor:      s.y?.ticks?.color,
+      yTickFontSize:   s.y?.ticks?.font?.size,
+      yTickFontWeight: s.y?.ticks?.font?.weight,
+      yTickFontStyle:  s.y?.ticks?.font?.style,
+      yGridDisplay:    s.y?.grid?.display,
+      yGridColor:      s.y?.grid?.color,
+      yTitleDisplay:   s.y?.title?.display,
+      yTitleColor:     s.y?.title?.color,
+      yTitleFontSize:  s.y?.title?.font?.size,
+      yTitleFontWeight:s.y?.title?.font?.weight,
       dataset0Bg:          hex(d0?.backgroundColor),
       dataset0BorderColor: hex(d0?.borderColor),
       dataset0BorderWidth: d0?.borderWidth,
@@ -184,12 +195,13 @@ test.describe('barChart — title properties', () => {
     expect((await chartOpts(page))?.titleFontWeight).toBe('normal');
   });
 
-  test('title.text → titleText changes', async ({ page }) => {
+  test('title.italic=ON → canvas pixels change', async ({ page }) => {
     await openModal(page, 'barChart');
+    const s1 = await snap(page);
     await expandCard(page, 'Title');
-    await setProp(page, 'Title', 'Title Text', 'string', 'My Custom Title');
+    await setProp(page, 'Title', 'Italic', 'boolean', null);
     await applyAndWait(page);
-    expect((await chartOpts(page))?.titleText).toBe('My Custom Title');
+    expect(s1.equals(await snap(page))).toBe(false);
   });
 });
 
@@ -285,12 +297,13 @@ test.describe('barChart — category axis (scales.y for horizontal bars)', () =>
     expect((await chartOpts(page))?.yTitleDisplay).toBe(true);
   });
 
-  test('categoryAxis.titleText → yTitleText changes', async ({ page }) => {
+  test('categoryAxis.showAxisTitle=ON → canvas pixels change', async ({ page }) => {
     await openModal(page, 'barChart');
+    const s1 = await snap(page);
     await expandCard(page, 'Category Axis');
-    await setProp(page, 'Category Axis', 'Title Text', 'string', 'My Cat Axis');
+    await setProp(page, 'Category Axis', 'Show Axis Title', 'boolean', null);
     await applyAndWait(page);
-    expect((await chartOpts(page))?.yTitleText).toBe('My Cat Axis');
+    expect(s1.equals(await snap(page))).toBe(false);
   });
 
   test('categoryAxis.titleColor → yTitleColor changes', async ({ page }) => {
@@ -356,12 +369,13 @@ test.describe('barChart — value axis (scales.x for horizontal bars)', () => {
     expect((await chartOpts(page))?.xTitleDisplay).toBe(true);
   });
 
-  test('valueAxis.titleText → xTitleText changes', async ({ page }) => {
+  test('valueAxis.showAxisTitle=ON → canvas pixels change', async ({ page }) => {
     await openModal(page, 'barChart');
+    const s1 = await snap(page);
     await expandCard(page, 'Value Axis');
-    await setProp(page, 'Value Axis', 'Title Text', 'string', 'My Val Axis');
+    await setProp(page, 'Value Axis', 'Show Axis Title', 'boolean', null);
     await applyAndWait(page);
-    expect((await chartOpts(page))?.xTitleText).toBe('My Val Axis');
+    expect(s1.equals(await snap(page))).toBe(false);
   });
 
   test('valueAxis.titleColor → xTitleColor changes', async ({ page }) => {
@@ -516,8 +530,8 @@ test.describe('lineChart — lineStyles properties', () => {
   test('lineStyles.strokeWidth → dataset0BorderWidth changes', async ({ page }) => {
     await openModal(page, 'lineChart');
     expect((await chartOpts(page))?.dataset0BorderWidth).toBe(2);
-    await expandCard(page, 'Line Styles');
-    await setProp(page, 'Line Styles', 'Line Width', 'number', 5);
+    await expandCard(page, 'Line Style');
+    await setProp(page, 'Line Style', 'Line Width', 'number', 5);
     await applyAndWait(page);
     expect((await chartOpts(page))?.dataset0BorderWidth).toBe(5);
   });
@@ -525,8 +539,8 @@ test.describe('lineChart — lineStyles properties', () => {
   test('lineStyles.showMarker=ON → dataset0PointRadius becomes 4', async ({ page }) => {
     await openModal(page, 'lineChart');
     expect((await chartOpts(page))?.dataset0PointRadius).toBe(0);
-    await expandCard(page, 'Line Styles');
-    await setProp(page, 'Line Styles', 'Show Markers', 'boolean', null);
+    await expandCard(page, 'Line Style');
+    await setProp(page, 'Line Style', 'Show Markers', 'boolean', null);
     await applyAndWait(page);
     expect((await chartOpts(page))?.dataset0PointRadius).toBe(4);
   });
@@ -801,8 +815,8 @@ test.describe('kpi — all rendered properties', () => {
   test('trendline.color → canvas pixels change', async ({ page }) => {
     await openModal(page, 'kpi');
     const s1 = await snap(page);
-    await expandCard(page, 'Trendline');
-    await setProp(page, 'Trendline', 'Trendline Color', 'color', '#ff0000');
+    await expandCard(page, 'Trend Line');
+    await setProp(page, 'Trend Line', 'Trendline Color', 'color', '#ff0000');
     await applyAndWait(page);
     expect(s1.equals(await snap(page))).toBe(false);
   });
@@ -810,8 +824,8 @@ test.describe('kpi — all rendered properties', () => {
   test('trendline.show=OFF → canvas pixels change (trendline disappears)', async ({ page }) => {
     await openModal(page, 'kpi');
     const s1 = await snap(page);
-    await expandCard(page, 'Trendline');
-    await setProp(page, 'Trendline', 'Show Trendline', 'boolean', null);
+    await expandCard(page, 'Trend Line');
+    await setProp(page, 'Trend Line', 'Show Trendline', 'boolean', null);
     await applyAndWait(page);
     expect(s1.equals(await snap(page))).toBe(false);
   });
@@ -962,8 +976,8 @@ test.describe('multiRowCard — all rendered properties', () => {
   test('categoryLabels.color → canvas pixels change', async ({ page }) => {
     await openModal(page, 'multiRowCard');
     const s1 = await snap(page);
-    await expandCard(page, 'Category Labels');
-    await setProp(page, 'Category Labels', 'Color', 'color', '#ff0000');
+    await expandCard(page, 'Category Label');
+    await setProp(page, 'Category Label', 'Color', 'color', '#ff0000');
     await applyAndWait(page);
     expect(s1.equals(await snap(page))).toBe(false);
   });
@@ -973,8 +987,8 @@ test.describe('cardVisual — all rendered properties', () => {
   test('cardVisualSettings.fontColor → canvas pixels change', async ({ page }) => {
     await openModal(page, 'cardVisual');
     const s1 = await snap(page);
-    await expandCard(page, 'Card Visual Settings');
-    await setProp(page, 'Card Visual Settings', 'Font Color', 'color', '#ff0000');
+    await expandCard(page, 'Card Value');
+    await setProp(page, 'Card Value', 'Font Color', 'color', '#ff0000');
     await applyAndWait(page);
     expect(s1.equals(await snap(page))).toBe(false);
   });
@@ -982,8 +996,8 @@ test.describe('cardVisual — all rendered properties', () => {
   test('categoryLabels.color → canvas pixels change', async ({ page }) => {
     await openModal(page, 'cardVisual');
     const s1 = await snap(page);
-    await expandCard(page, 'Category Labels');
-    await setProp(page, 'Category Labels', 'Color', 'color', '#ff0000');
+    await expandCard(page, 'Category Label');
+    await setProp(page, 'Category Label', 'Color', 'color', '#ff0000');
     await applyAndWait(page);
     expect(s1.equals(await snap(page))).toBe(false);
   });
@@ -991,8 +1005,8 @@ test.describe('cardVisual — all rendered properties', () => {
   test('categoryLabels.fontSize → canvas pixels change', async ({ page }) => {
     await openModal(page, 'cardVisual');
     const s1 = await snap(page);
-    await expandCard(page, 'Category Labels');
-    await setProp(page, 'Category Labels', 'Font Size', 'number', 20);
+    await expandCard(page, 'Category Label');
+    await setProp(page, 'Category Label', 'Font Size', 'number', 20);
     await applyAndWait(page);
     expect(s1.equals(await snap(page))).toBe(false);
   });
@@ -1113,6 +1127,224 @@ test.describe('treemap — data color reflected in canvas', () => {
     });
     await applyAndWait(page);
     expect(s1.equals(await snap(page))).toBe(false);
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SECTION E·1  ·  New rendering: title italic/align, legend bold/italic/family,
+//               axis bold/italic, axis-title fontSize/bold, dataPoint borders
+// ══════════════════════════════════════════════════════════════════════════════
+
+test.describe('barChart — title italic and alignment', () => {
+  test('title.italic=ON → titleFontStyle italic', async ({ page }) => {
+    await openModal(page, 'barChart');
+    expect((await chartOpts(page))?.titleFontStyle).toBe('normal');
+    await expandCard(page, 'Title');
+    await setProp(page, 'Title', 'Italic', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.titleFontStyle).toBe('italic');
+  });
+
+  test('title.alignment=center → titleAlign center', async ({ page }) => {
+    await openModal(page, 'barChart');
+    expect((await chartOpts(page))?.titleAlign).toBe('start');
+    await expandCard(page, 'Title');
+    await setProp(page, 'Title', 'Alignment', 'enum', 'center');
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.titleAlign).toBe('center');
+  });
+
+  test('title.alignment=right → titleAlign end', async ({ page }) => {
+    await openModal(page, 'barChart');
+    await expandCard(page, 'Title');
+    await setProp(page, 'Title', 'Alignment', 'enum', 'right');
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.titleAlign).toBe('end');
+  });
+
+  test('slicer: title.italic=ON → canvas pixels change', async ({ page }) => {
+    await openModal(page, 'slicer');
+    const s1 = await snap(page);
+    await expandCard(page, 'Title');
+    await setProp(page, 'Title', 'Italic', 'boolean', null);
+    await applyAndWait(page);
+    expect(s1.equals(await snap(page))).toBe(false);
+  });
+
+  test('gauge: title.alignment=center → canvas pixels change', async ({ page }) => {
+    await openModal(page, 'gauge');
+    const s1 = await snap(page);
+    await expandCard(page, 'Title');
+    await setProp(page, 'Title', 'Alignment', 'enum', 'center');
+    await applyAndWait(page);
+    expect(s1.equals(await snap(page))).toBe(false);
+  });
+});
+
+test.describe('barChart — legend bold / italic / fontFamily', () => {
+  test('legend.bold=ON → legendFontWeight bold', async ({ page }) => {
+    await openModal(page, 'barChart');
+    expect((await chartOpts(page))?.legendFontWeight).toBe('normal');
+    await expandCard(page, 'Legend');
+    await setProp(page, 'Legend', 'Bold', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.legendFontWeight).toBe('bold');
+  });
+
+  test('legend.italic=ON → legendFontStyle italic', async ({ page }) => {
+    await openModal(page, 'barChart');
+    expect((await chartOpts(page))?.legendFontStyle).toBe('normal');
+    await expandCard(page, 'Legend');
+    await setProp(page, 'Legend', 'Italic', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.legendFontStyle).toBe('italic');
+  });
+
+  test('legend.fontFamily Calibri → legendFamily Calibri', async ({ page }) => {
+    await openModal(page, 'barChart');
+    expect((await chartOpts(page))?.legendFamily).toBe('Segoe UI');
+    await expandCard(page, 'Legend');
+    await setProp(page, 'Legend', 'Font Family', 'enum', 'Calibri');
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.legendFamily).toBe('Calibri');
+  });
+});
+
+test.describe('barChart — category axis bold/italic (scales.y for horizontal bars)', () => {
+  test('categoryAxis.bold=ON → yTickFontWeight bold', async ({ page }) => {
+    await openModal(page, 'barChart');
+    expect((await chartOpts(page))?.yTickFontWeight).toBe('normal');
+    await expandCard(page, 'Category Axis');
+    await setProp(page, 'Category Axis', 'Bold', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.yTickFontWeight).toBe('bold');
+  });
+
+  test('categoryAxis.italic=ON → yTickFontStyle italic', async ({ page }) => {
+    await openModal(page, 'barChart');
+    expect((await chartOpts(page))?.yTickFontStyle).toBe('normal');
+    await expandCard(page, 'Category Axis');
+    await setProp(page, 'Category Axis', 'Italic', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.yTickFontStyle).toBe('italic');
+  });
+});
+
+test.describe('barChart — axis title fontSize/bold (scales.y for horizontal bars)', () => {
+  test('categoryAxis.titleFontSize → yTitleFontSize changes', async ({ page }) => {
+    await openModal(page, 'barChart');
+    await expandCard(page, 'Category Axis');
+    await setProp(page, 'Category Axis', 'Show Axis Title', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.yTitleFontSize).toBe(11);
+    await setProp(page, 'Category Axis', 'Title Font Size', 'number', 16);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.yTitleFontSize).toBe(16);
+  });
+
+  test('categoryAxis.titleBold=ON → yTitleFontWeight bold', async ({ page }) => {
+    await openModal(page, 'barChart');
+    await expandCard(page, 'Category Axis');
+    await setProp(page, 'Category Axis', 'Show Axis Title', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.yTitleFontWeight).toBe('normal');
+    await setProp(page, 'Category Axis', 'Title Bold', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.yTitleFontWeight).toBe('bold');
+  });
+});
+
+test.describe('barChart — value axis bold/italic (scales.x for horizontal bars)', () => {
+  test('valueAxis.bold=ON → xTickFontWeight bold', async ({ page }) => {
+    await openModal(page, 'barChart');
+    expect((await chartOpts(page))?.xTickFontWeight).toBe('normal');
+    await expandCard(page, 'Value Axis');
+    await setProp(page, 'Value Axis', 'Bold', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.xTickFontWeight).toBe('bold');
+  });
+
+  test('valueAxis.italic=ON → xTickFontStyle italic', async ({ page }) => {
+    await openModal(page, 'barChart');
+    expect((await chartOpts(page))?.xTickFontStyle).toBe('normal');
+    await expandCard(page, 'Value Axis');
+    await setProp(page, 'Value Axis', 'Italic', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.xTickFontStyle).toBe('italic');
+  });
+});
+
+test.describe('barChart — value axis title fontSize/bold (scales.x for horizontal bars)', () => {
+  test('valueAxis.titleFontSize → xTitleFontSize changes', async ({ page }) => {
+    await openModal(page, 'barChart');
+    await expandCard(page, 'Value Axis');
+    await setProp(page, 'Value Axis', 'Show Axis Title', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.xTitleFontSize).toBe(11);
+    await setProp(page, 'Value Axis', 'Title Font Size', 'number', 16);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.xTitleFontSize).toBe(16);
+  });
+
+  test('valueAxis.titleBold=ON → xTitleFontWeight bold', async ({ page }) => {
+    await openModal(page, 'barChart');
+    await expandCard(page, 'Value Axis');
+    await setProp(page, 'Value Axis', 'Show Axis Title', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.xTitleFontWeight).toBe('normal');
+    await setProp(page, 'Value Axis', 'Title Bold', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.xTitleFontWeight).toBe('bold');
+  });
+});
+
+test.describe('columnChart — category/value axis bold/italic (catScale=x, valScale=y)', () => {
+  test('categoryAxis.bold=ON → xTickFontWeight bold', async ({ page }) => {
+    await openModal(page, 'columnChart');
+    expect((await chartOpts(page))?.xTickFontWeight).toBe('normal');
+    await expandCard(page, 'Category Axis');
+    await setProp(page, 'Category Axis', 'Bold', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.xTickFontWeight).toBe('bold');
+  });
+
+  test('valueAxis.italic=ON → yTickFontStyle italic', async ({ page }) => {
+    await openModal(page, 'columnChart');
+    expect((await chartOpts(page))?.yTickFontStyle).toBe('normal');
+    await expandCard(page, 'Value Axis');
+    await setProp(page, 'Value Axis', 'Italic', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.yTickFontStyle).toBe('italic');
+  });
+});
+
+test.describe('barChart — dataPoint borders', () => {
+  test('dataPoint.borderShow=ON → dataset0BorderWidth equals borderSize', async ({ page }) => {
+    await openModal(page, 'barChart');
+    expect((await chartOpts(page))?.dataset0BorderWidth).toBe(0);
+    await expandCard(page, 'Data Point');
+    await setProp(page, 'Data Point', 'Show Border', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.dataset0BorderWidth).toBe(1);
+  });
+
+  test('dataPoint.borderColor → dataset0BorderColor changes when border shown', async ({ page }) => {
+    await openModal(page, 'barChart');
+    await expandCard(page, 'Data Point');
+    await setProp(page, 'Data Point', 'Show Border', 'boolean', null);
+    await applyAndWait(page);
+    await setProp(page, 'Data Point', 'Border Color', 'color', '#ff0000');
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.dataset0BorderColor).toBe('#ff0000');
+  });
+
+  test('columnChart: dataPoint.borderShow=ON → dataset0BorderWidth becomes 1', async ({ page }) => {
+    await openModal(page, 'columnChart');
+    expect((await chartOpts(page))?.dataset0BorderWidth).toBe(0);
+    await expandCard(page, 'Data Point');
+    await setProp(page, 'Data Point', 'Show Border', 'boolean', null);
+    await applyAndWait(page);
+    expect((await chartOpts(page))?.dataset0BorderWidth).toBe(1);
   });
 });
 

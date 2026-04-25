@@ -103,35 +103,131 @@
     letter-spacing: 0.05em;
     margin-top: 2px;
   }
+  #global-bar { gap: 0 !important; }
   #global-bar-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
     user-select: none;
-    padding: 2px 0;
+    padding: 2px 0 10px;
+    border-bottom: 1.5px solid #eef2f8;
+    margin-bottom: 10px;
   }
-  #global-bar-header:hover { opacity: 0.8; }
+  #global-bar-header:hover { opacity: 0.85; }
+  #global-bar-header-left { display: flex; flex-direction: column; gap: 2px; }
+  #global-bar-header-title { font-size: 13px; font-weight: 700; color: #0f4c81; }
+  #global-bar-header-sub  { font-size: 10px; color: #aaa; }
   #global-bar-toggle {
     background: none;
-    border: 1px solid #c8d8ea;
+    border: 1px solid #d0dce8;
     border-radius: 5px;
-    font-size: 11px;
     color: #0f4c81;
     cursor: pointer;
-    padding: 2px 8px;
-    line-height: 1.4;
+    padding: 4px 8px;
+    line-height: 1;
+    transition: background 0.15s;
+    font-size: 12px;
   }
+  #global-bar-toggle:hover { background: #f0f5fb; }
   #global-bar-body {
-    max-height: 600px;
+    max-height: 700px;
     overflow: hidden;
     transition: max-height 0.28s ease, opacity 0.2s ease;
     opacity: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
   }
-  #global-bar-body.collapsed {
-    max-height: 0;
-    opacity: 0;
+  #global-bar-body.collapsed { max-height: 0; opacity: 0; }
+  /* Section rows */
+  .gb-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+    padding: 8px 12px;
+    background: #f8fafd;
+    border: 1px solid #e6edf5;
+    border-radius: 6px;
   }
+  .gb-row-typo { align-items: flex-start; }
+  /* Pill labels */
+  .gb-pill {
+    font-size: 11px;
+    font-weight: 700;
+    color: #0f4c81;
+    background: #fff;
+    border: 1.5px solid #b8ccde;
+    border-radius: 20px;
+    padding: 3px 11px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .gb-pill-sm { font-size: 10px; padding: 2px 9px; border-color: #ccdce8; }
+  /* Individual controls */
+  .gb-ctrl {
+    font-size: 12px;
+    color: #444;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+  .gb-ctrl-label { font-size: 12px; color: #555; flex-shrink: 0; }
+  /* Swatches */
+  .gb-swatch {
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid #c8d8e8;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 1px;
+    background: none;
+    flex-shrink: 0;
+  }
+  /* Vertical divider between groups */
+  .gb-divider {
+    width: 1px;
+    height: 30px;
+    background: #cdd8e4;
+    flex-shrink: 0;
+    align-self: center;
+  }
+  /* Typography card columns */
+  .gb-typo-grid { display: flex; gap: 6px; flex-wrap: wrap; }
+  .gb-typo-col {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: stretch;
+    width: 148px;
+    background: #fff;
+    border: 1px solid #dde8f3;
+    border-radius: 6px;
+    padding: 0 8px 8px;
+    overflow: hidden;
+  }
+  .gb-typo-head {
+    font-size: 11px;
+    font-weight: 700;
+    color: #0f4c81;
+    background: #edf3fb;
+    text-align: center;
+    padding: 4px 0;
+    margin: 0 -8px 3px;
+    letter-spacing: 0.04em;
+  }
+  .gb-typo-font, .gb-typo-size {
+    width: 100%;
+    font-size: 10px;
+    padding: 2px 4px;
+    border: 1px solid #ccd;
+    border-radius: 3px;
+    box-sizing: border-box;
+  }
+  .gb-typo-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .gb-typo-row label { font-size: 10px; color: #666; display: flex; align-items: center; gap: 4px; cursor: pointer; }
   #settings-panel h1 {
     font-size: 20px;
     font-weight: 700;
@@ -391,81 +487,92 @@
     <!-- Global settings bar -->
     <div id="global-bar" style="background:#fff;border-radius:8px;padding:12px 16px;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.07);display:flex;flex-direction:column;gap:10px;">
       <div id="global-bar-header" onclick="toggleGlobalBar()">
-        <span style="font-size:13px;font-weight:700;color:#0f4c81;">Global Settings</span>
-        <button id="global-bar-toggle">▼ Collapse</button>
+        <div id="global-bar-header-left">
+          <span id="global-bar-header-title">Global Settings</span>
+          <span id="global-bar-header-sub">Applies to all visuals unless overridden per-visual</span>
+        </div>
+        <button id="global-bar-toggle">&#x25BC; Collapse</button>
       </div>
       <div id="global-bar-body">
-      <!-- Row 1: Colors + Palette -->
-      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
-        <span style="font-size:12px;font-weight:700;color:#0f4c81;min-width:80px;">Colors</span>
-        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;">
-          Background
-          <input type="color" id="g-background" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;">
-        </label>
-        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;">
-          Foreground
-          <input type="color" id="g-foreground" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;">
-        </label>
-        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;">
-          Table Accent
-          <input type="color" id="g-tableAccent" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;">
-        </label>
-        <span style="font-size:12px;color:#444;">Data Colors:</span>
-        <div id="data-colors" style="display:flex;gap:4px;flex-wrap:wrap;"></div>
-      </div>
-      <!-- Row 2: Global Typography (textClasses) -->
-      <div style="display:grid;grid-template-columns:80px repeat(4,1fr);gap:8px 12px;align-items:center;border-top:1px solid #eef2f8;padding-top:10px;">
-        <span style="font-size:12px;font-weight:700;color:#0f4c81;">Typography</span>
-        <span style="font-size:11px;color:#666;font-weight:600;text-align:center;">title</span>
-        <span style="font-size:11px;color:#666;font-weight:600;text-align:center;">header</span>
-        <span style="font-size:11px;color:#666;font-weight:600;text-align:center;">label</span>
-        <span style="font-size:11px;color:#666;font-weight:600;text-align:center;">callout</span>
 
-        <span style="font-size:11px;color:#555;">Font</span>
-        <select id="tc-title-font" style="font-size:10px;padding:2px 3px;border:1px solid #cdd;border-radius:3px;width:100%;"></select>
-        <select id="tc-header-font" style="font-size:10px;padding:2px 3px;border:1px solid #cdd;border-radius:3px;width:100%;"></select>
-        <select id="tc-label-font" style="font-size:10px;padding:2px 3px;border:1px solid #cdd;border-radius:3px;width:100%;"></select>
-        <select id="tc-callout-font" style="font-size:10px;padding:2px 3px;border:1px solid #cdd;border-radius:3px;width:100%;"></select>
+        <!-- Row 1: Canvas colors + Data palette -->
+        <div class="gb-row">
+          <span class="gb-pill">Colors</span>
+          <label class="gb-ctrl">Background <input type="color" id="g-background" class="gb-swatch"></label>
+          <label class="gb-ctrl">Foreground <input type="color" id="g-foreground" class="gb-swatch"></label>
+          <label class="gb-ctrl">Table Accent <input type="color" id="g-tableAccent" class="gb-swatch"></label>
+          <div class="gb-divider"></div>
+          <span class="gb-ctrl-label">Data Colors</span>
+          <div id="data-colors" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;"></div>
+        </div>
 
-        <span style="font-size:11px;color:#555;">Size</span>
-        <input type="number" id="tc-title-size" min="6" max="96" style="width:100%;font-size:10px;padding:2px;border:1px solid #cdd;border-radius:3px;">
-        <input type="number" id="tc-header-size" min="6" max="96" style="width:100%;font-size:10px;padding:2px;border:1px solid #cdd;border-radius:3px;">
-        <input type="number" id="tc-label-size" min="6" max="40" style="width:100%;font-size:10px;padding:2px;border:1px solid #cdd;border-radius:3px;">
-        <input type="number" id="tc-callout-size" min="6" max="96" style="width:100%;font-size:10px;padding:2px;border:1px solid #cdd;border-radius:3px;">
+        <!-- Row 2: Typography -->
+        <div class="gb-row gb-row-typo">
+          <span class="gb-pill">Typography</span>
+          <div class="gb-typo-grid">
+            <div class="gb-typo-col">
+              <div class="gb-typo-head">Title</div>
+              <select id="tc-title-font" class="gb-typo-font"></select>
+              <input type="number" id="tc-title-size" class="gb-typo-size" min="6" max="96">
+              <div class="gb-typo-row">
+                <input type="color" id="tc-title-color" class="gb-swatch" style="width:28px;height:28px;">
+                <label><input type="checkbox" id="tc-title-bold"> Bold</label>
+              </div>
+            </div>
+            <div class="gb-typo-col">
+              <div class="gb-typo-head">Header</div>
+              <select id="tc-header-font" class="gb-typo-font"></select>
+              <input type="number" id="tc-header-size" class="gb-typo-size" min="6" max="96">
+              <div class="gb-typo-row">
+                <input type="color" id="tc-header-color" class="gb-swatch" style="width:28px;height:28px;">
+                <label><input type="checkbox" id="tc-header-bold"> Bold</label>
+              </div>
+            </div>
+            <div class="gb-typo-col">
+              <div class="gb-typo-head">Label</div>
+              <select id="tc-label-font" class="gb-typo-font"></select>
+              <input type="number" id="tc-label-size" class="gb-typo-size" min="6" max="40">
+              <div class="gb-typo-row">
+                <input type="color" id="tc-label-color" class="gb-swatch" style="width:28px;height:28px;">
+                <label><input type="checkbox" id="tc-label-bold"> Bold</label>
+              </div>
+            </div>
+            <div class="gb-typo-col">
+              <div class="gb-typo-head">Callout</div>
+              <select id="tc-callout-font" class="gb-typo-font"></select>
+              <input type="number" id="tc-callout-size" class="gb-typo-size" min="6" max="96">
+              <div class="gb-typo-row">
+                <input type="color" id="tc-callout-color" class="gb-swatch" style="width:28px;height:28px;">
+                <label><input type="checkbox" id="tc-callout-bold"> Bold</label>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <span style="font-size:11px;color:#555;">Color</span>
-        <div><input type="color" id="tc-title-color" style="width:28px;height:28px;border:none;border-radius:4px;cursor:pointer;"></div>
-        <div><input type="color" id="tc-header-color" style="width:28px;height:28px;border:none;border-radius:4px;cursor:pointer;"></div>
-        <div><input type="color" id="tc-label-color" style="width:28px;height:28px;border:none;border-radius:4px;cursor:pointer;"></div>
-        <div><input type="color" id="tc-callout-color" style="width:28px;height:28px;border:none;border-radius:4px;cursor:pointer;"></div>
+        <!-- Row 3: Sentiment + Diverging (separated by divider) -->
+        <div class="gb-row">
+          <span class="gb-pill">Sentiment</span>
+          <label class="gb-ctrl">Good <input type="color" id="g-good" class="gb-swatch"></label>
+          <label class="gb-ctrl">Neutral <input type="color" id="g-neutral" class="gb-swatch"></label>
+          <label class="gb-ctrl">Bad <input type="color" id="g-bad" class="gb-swatch"></label>
+          <div class="gb-divider"></div>
+          <span class="gb-pill gb-pill-sm">Diverging</span>
+          <label class="gb-ctrl">Min <input type="color" id="g-minimum" class="gb-swatch"></label>
+          <label class="gb-ctrl">Center <input type="color" id="g-center" class="gb-swatch"></label>
+          <label class="gb-ctrl">Max <input type="color" id="g-maximum" class="gb-swatch"></label>
+          <label class="gb-ctrl">Null <input type="color" id="g-null" class="gb-swatch"></label>
+        </div>
 
-        <span style="font-size:11px;color:#555;">Bold</span>
-        <label style="display:flex;justify-content:center;"><input type="checkbox" id="tc-title-bold"></label>
-        <label style="display:flex;justify-content:center;"><input type="checkbox" id="tc-header-bold"></label>
-        <label style="display:flex;justify-content:center;"><input type="checkbox" id="tc-label-bold"></label>
-        <label style="display:flex;justify-content:center;"><input type="checkbox" id="tc-callout-bold"></label>
-      </div>
-      <!-- Row 3: Sentiment + Diverging colors -->
-      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;border-top:1px solid #eef2f8;padding-top:10px;">
-        <span style="font-size:12px;font-weight:700;color:#0f4c81;min-width:80px;">Sentiment</span>
-        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;">Good <input type="color" id="g-good" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;"></label>
-        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;">Neutral <input type="color" id="g-neutral" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;"></label>
-        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;">Bad <input type="color" id="g-bad" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;"></label>
-        <span style="font-size:12px;font-weight:700;color:#0f4c81;margin-left:12px;">Diverging</span>
-        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;">Min <input type="color" id="g-minimum" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;"></label>
-        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;">Center <input type="color" id="g-center" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;"></label>
-        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;">Max <input type="color" id="g-maximum" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;"></label>
-        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;">Null <input type="color" id="g-null" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;"></label>
-      </div>
-      <!-- Row 4: UI structure colors -->
-      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;border-top:1px solid #eef2f8;padding-top:10px;">
-        <span style="font-size:12px;font-weight:700;color:#0f4c81;min-width:80px;">UI Colors</span>
-        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;" title="firstLevelElements — primary text color for titles and main labels">Primary Text <input type="color" id="g-firstLevelElements" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;"></label>
-        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;" title="secondLevelElements — secondary text color for axis labels and subtitles">Secondary Text <input type="color" id="g-secondLevelElements" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;"></label>
-        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;" title="thirdLevelElements — border and line color for UI outlines and dividers">Borders &amp; Lines <input type="color" id="g-thirdLevelElements" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;"></label>
-        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;" title="fourthLevelElements — color for disabled and dimmed elements">Disabled <input type="color" id="g-fourthLevelElements" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;"></label>
-        <label style="font-size:12px;color:#444;display:flex;align-items:center;gap:6px;" title="secondaryBackground — alternate row color in tables and secondary surfaces">Alt. Background <input type="color" id="g-secondaryBackground" style="width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;"></label>
-      </div>
+        <!-- Row 4: UI structural colors -->
+        <div class="gb-row">
+          <span class="gb-pill">UI Colors</span>
+          <label class="gb-ctrl" title="Primary text color for titles and main labels">Primary Text <input type="color" id="g-firstLevelElements" class="gb-swatch"></label>
+          <label class="gb-ctrl" title="Secondary text color for axis labels and subtitles">Secondary Text <input type="color" id="g-secondLevelElements" class="gb-swatch"></label>
+          <label class="gb-ctrl" title="Border and line color for UI outlines and dividers">Borders &amp; Lines <input type="color" id="g-thirdLevelElements" class="gb-swatch"></label>
+          <label class="gb-ctrl" title="Color for disabled and dimmed elements">Disabled <input type="color" id="g-fourthLevelElements" class="gb-swatch"></label>
+          <label class="gb-ctrl" title="Alternate row color for tables and secondary surfaces">Alt. Background <input type="color" id="g-secondaryBackground" class="gb-swatch"></label>
+        </div>
+
       </div><!-- /global-bar-body -->
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
@@ -732,7 +839,7 @@ const CARD_DEFS = {
     { key:'bold',        type:'boolean',label:'Bold',         def:true },
     { key:'italic',      type:'boolean',label:'Italic',       def:false },
     { key:'underline',   type:'boolean',label:'Underline',    def:false },
-    { key:'background',  type:'color',  label:'Background',   def:'#0F4C81' },
+    { key:'backColor',   type:'color',  label:'Background',   def:'#0F4C81' },
     { key:'outline',     type:'enum',   label:'Outline',      def:'None', options:['None','Frame','Top','Bottom','Left','Right','TopBottom'] },
     { key:'alignment',   type:'enum',   label:'Alignment',    def:'left', options:['left','center','right'] },
     { key:'autoSizeColumnWidth', type:'boolean', label:'Auto Width', def:true },
@@ -743,7 +850,7 @@ const CARD_DEFS = {
     { key:'fontColor',                type:'color',  label:'Font Color',           def:'#333333' },
     { key:'bold',                     type:'boolean',label:'Bold',                 def:false },
     { key:'italic',                   type:'boolean',label:'Italic',               def:false },
-    { key:'background',               type:'color',  label:'Background',           def:'#FFFFFF' },
+    { key:'backColor',               type:'color',  label:'Background',           def:'#FFFFFF' },
     { key:'outline',                  type:'enum',   label:'Outline',              def:'None', options:['None','Frame','Top','Bottom','Left','Right','TopBottom'] },
     { key:'stepped',                  type:'boolean',label:'Stepped Layout',       def:true },
     { key:'steppedLayoutIndentation', type:'number', label:'Step Indent',          def:20, min:0, max:100 },
@@ -755,18 +862,18 @@ const CARD_DEFS = {
     { key:'fontColor',      type:'color',  label:'Font Color',      def:'#333333' },
     { key:'bold',           type:'boolean',label:'Bold',            def:false },
     { key:'italic',         type:'boolean',label:'Italic',          def:false },
-    { key:'background',     type:'color',  label:'Background',      def:'#FFFFFF' },
-    { key:'bandedRowColor', type:'color',  label:'Banded Row Color',def:'#F0F6FB' },
-    { key:'alignment',      type:'enum',   label:'Alignment',       def:'left', options:['left','center','right'] },
+    { key:'backColor',           type:'color',  label:'Background',      def:'#FFFFFF' },
+    { key:'backColorSecondary',  type:'color',  label:'Banded Row Color',def:'#F0F6FB' },
+    { key:'alignment',           type:'enum',   label:'Alignment',       def:'left', options:['left','center','right'] },
   ],
-  subtotals: [
+  subTotals: [
     { key:'rowSubtotals',    type:'boolean', label:'Row Subtotals',    def:true },
     { key:'columnSubtotals', type:'boolean', label:'Column Subtotals', def:true },
     { key:'fontFamily',      type:'enum',    label:'Font Family',      def:'Segoe UI Semibold', options:FONTS },
     { key:'fontSize',        type:'number',  label:'Font Size',        def:11, min:6, max:40 },
     { key:'fontColor',       type:'color',   label:'Font Color',       def:'#0F4C81' },
     { key:'bold',            type:'boolean', label:'Bold',             def:true },
-    { key:'background',      type:'color',   label:'Background',       def:'#E8F0F7' },
+    { key:'backColor',       type:'color',   label:'Background',       def:'#E8F0F7' },
     { key:'outline',         type:'enum',    label:'Outline',          def:'TopBottom', options:['None','Frame','Top','Bottom','Left','Right','TopBottom'] },
     { key:'outlineColor',    type:'color',   label:'Outline Color',    def:'#0F4C81' },
     { key:'perRowLevel',     type:'boolean', label:'Per Row Level',    def:true },
@@ -778,7 +885,7 @@ const CARD_DEFS = {
     { key:'fontSize',   type:'number',  label:'Font Size',    def:11, min:6, max:40 },
     { key:'fontColor',  type:'color',   label:'Font Color',   def:'#0F4C81' },
     { key:'bold',       type:'boolean', label:'Bold',         def:true },
-    { key:'background', type:'color',   label:'Background',   def:'#E8F0F7' },
+    { key:'backColor',  type:'color',   label:'Background',   def:'#E8F0F7' },
     { key:'outline',    type:'enum',    label:'Outline',      def:'Top', options:['None','Frame','Top','Bottom','Left','Right','TopBottom'] },
     { key:'outlineColor',type:'color',  label:'Outline Color',def:'#0F4C81' },
   ],
@@ -852,10 +959,11 @@ const CARD_DEFS = {
     { key:'fillColor',    type:'color',   label:'Fill Color',    def:'#1F8AC0' },
     { key:'transparency', type:'number',  label:'Transparency',  def:0, min:0, max:100 },
   ],
-  line: [
-    { key:'show',        type:'boolean', label:'Show Line',     def:false },
-    { key:'strokeColor', type:'color',   label:'Line Color',    def:'#0F4C81' },
-    { key:'strokeWidth', type:'number',  label:'Line Width',    def:1, min:1, max:10 },
+  shapeOutline: [
+    { key:'show',         type:'boolean', label:'Show Outline',   def:false },
+    { key:'lineColor',    type:'color',   label:'Outline Color',  def:'#0F4C81' },
+    { key:'weight',       type:'number',  label:'Outline Weight', def:1, min:1, max:10 },
+    { key:'transparency', type:'number',  label:'Transparency',   def:0, min:0, max:100 },
   ],
   outline: [
     { key:'show',   type:'boolean', label:'Show Outline',  def:false },
@@ -880,7 +988,7 @@ const CARD_DEFS = {
     { key:'show',              type:'boolean', label:'Show Text',          def:true },
     { key:'fontFamily',        type:'enum',    label:'Font Family',        def:'Segoe UI', options:FONTS },
     { key:'fontSize',          type:'number',  label:'Font Size',          def:12, min:6, max:96 },
-    { key:'fontBold',          type:'boolean', label:'Bold',               def:false },
+    { key:'bold',              type:'boolean', label:'Bold',               def:false },
     { key:'fontColor',         type:'color',   label:'Font Color',         def:'#FFFFFF' },
     { key:'alignment',         type:'enum',    label:'H Alignment',        def:'center', options:['left','center','right'] },
     { key:'verticalAlignment', type:'enum',    label:'V Alignment',        def:'middle', options:['top','middle','bottom'] },
@@ -948,6 +1056,27 @@ const CARD_DEFS = {
     { key:'color', type:'color', label:'Text Color', def:'#333333' },
     { key:'background', type:'color', label:'Background', def:'#FFFFFF' },
     { key:'border', type:'color', label:'Border Color', def:'#E0E0E0' },
+  ],
+  slicerHeader: [
+    { key:'show',       type:'boolean', label:'Show Header',  def:true },
+    { key:'fontFamily', type:'enum',    label:'Font Family',  def:'Segoe UI Semibold', options:FONTS },
+    { key:'textSize',   type:'number',  label:'Font Size',    def:12, min:6, max:40 },
+    { key:'fontColor',  type:'color',   label:'Font Color',   def:'#0F4C81' },
+    { key:'bold',       type:'boolean', label:'Bold',         def:true },
+    { key:'italic',     type:'boolean', label:'Italic',       def:false },
+    { key:'underline',  type:'boolean', label:'Underline',    def:false },
+    { key:'background', type:'color',   label:'Background',   def:'#FFFFFF' },
+    { key:'outline',    type:'enum',    label:'Outline',      def:'None', options:['None','Frame','Top','Bottom','Left','Right','TopBottom'] },
+  ],
+  slicerItems: [
+    { key:'fontFamily', type:'enum',    label:'Font Family',  def:'Segoe UI', options:FONTS },
+    { key:'textSize',   type:'number',  label:'Font Size',    def:11, min:6, max:40 },
+    { key:'fontColor',  type:'color',   label:'Font Color',   def:'#333333' },
+    { key:'bold',       type:'boolean', label:'Bold',         def:false },
+    { key:'italic',     type:'boolean', label:'Italic',       def:false },
+    { key:'background', type:'color',   label:'Background',   def:'#FFFFFF' },
+    { key:'outline',    type:'enum',    label:'Outline Style',def:'Frame', options:['None','Frame','Top','Bottom','Left','Right','TopBottom'] },
+    { key:'padding',    type:'number',  label:'Padding',      def:3, min:0, max:20 },
   ],
   slider: [
     { key:'color', type:'color', label:'Slider Color', def:'#1F8AC0' },
@@ -1080,33 +1209,34 @@ const VISUAL_SCHEMA = {
   filledMap:                      ['general','title','subheader','legend','labels','dataPoint'],
   funnel:                         ['general','title','subheader','legend','labels','dataPoint'],
   gauge:                          ['general','title','subheader','dataLabels','gauge','target'],
+  card:                           ['general','title','dataLabels','categoryLabels','wordWrap','background','border'],
   multiRowCard:                   ['general','title','dataLabels','categoryLabels','cardTitle','outline','bar','background','border'],
   kpi:                            ['general','title','indicator','trendline','dataLabels','goals','statusGraphic'],
-  slicer:                         ['general','title','header','items','selection','data','searchBox','slider','background','border'],
+  slicer:                         ['general','title','slicerHeader','slicerItems','selection','data','searchBox','slider','background','border'],
   tableEx:                        ['general','title','grid','columnHeaders','values','total','sparklines','columnFormatting','accessibility','background','border'],
-  matrix:                         ['general','title','grid','rowHeaders','columnHeaders','values','subtotals','sparklines','columnFormatting','accessibility','background','border'],
+  matrix:                         ['general','title','grid','rowHeaders','columnHeaders','values','subTotals','sparklines','columnFormatting','accessibility','background','border'],
   lineClusteredColumnComboChart:  ['general','title','subheader','legend','categoryAxis','valueAxis','y2Axis','labels','dataPoint','lineStyles','markers','plotArea','trend','referenceLine','annotations','zoom'],
   lineStackedColumnComboChart:    ['general','title','subheader','legend','categoryAxis','valueAxis','y2Axis','labels','dataPoint','lineStyles','markers','plotArea','trend','referenceLine','annotations','zoom'],
   decompositionTree:              ['general','title','subheader','legend','labels','dataLabels','header'],
   decompositionTreeVisual:        ['general','title','subheader','legend','labels','dataLabels','header'],
   hundredPercentStackedAreaChart: ['general','title','subheader','legend','categoryAxis','valueAxis','labels','dataPoint','plotArea','zoom'],
-  advancedSlicerVisual:           ['general','title','header','items','selection','searchBox','background','border'],
-  listSlicer:                     ['general','title','header','items','selection','searchBox','background','border'],
-  pivotTable:                     ['general','title','grid','rowHeaders','columnHeaders','values','subtotals','sparklines','accessibility','background','border'],
+  advancedSlicerVisual:           ['general','title','slicerHeader','slicerItems','selection','searchBox','background','border'],
+  listSlicer:                     ['general','title','slicerHeader','slicerItems','selection','searchBox','background','border'],
+  pivotTable:                     ['general','title','grid','rowHeaders','columnHeaders','values','subTotals','sparklines','accessibility','background','border'],
   scorecard:                      ['general','title','scorecard','background','border'],
   cardVisual:                     ['general','title','cardVisualSettings','categoryLabels','background','border'],
   bookmarkNavigator:              ['general','title','text','fill','outline','shadow','border'],
   pageNavigator:                  ['general','title','text','fill','outline','shadow','border'],
   azureMap:                       ['general','title','legend','dataPoint','bubbles','background','border'],
   shapeMap:                       ['general','title','legend','dataPoint','labels','background','border'],
-  shape:                          ['general','title','fill','line','background','border'],
+  shape:                          ['general','title','fill','shapeOutline','background','border'],
   textbox:                        ['background','border','shadow'],
   actionButton:                   ['text','fill','outline','shadow','border'],
   __page__:                       ['pageSize','pageBackground','pageWallpaper','filterPane'],
 };
 
 // ── Embedded theme state ──
-const THEME = {"name":"Customer360 Theme","textClasses":{"title":{"fontFace":"Segoe UI","fontSize":14,"fontBold":true,"fontColor":"#0F4C81"},"header":{"fontFace":"Segoe UI","fontSize":12,"fontBold":true,"fontColor":"#374649"},"label":{"fontFace":"Segoe UI","fontSize":10,"fontBold":false,"fontColor":"#666666"},"callout":{"fontFace":"Segoe UI","fontSize":45,"fontBold":false,"fontColor":"#374649"}},"dataColors":["#0F4C81","#1F8AC0","#3BBFCE","#70C1B3","#F4A261","#E76F51","#264653","#2A9D8F"],"background":"#FFFFFF","foreground":"#0F4C81","tableAccent":"#1F8AC0","good":"#1AAB40","neutral":"#D9B300","bad":"#D63554","maximum":"#1F8AC0","center":"#FFFFFF","minimum":"#E76F51","null":"#A0A0A0","firstLevelElements":"#0F4C81","secondLevelElements":"#374649","thirdLevelElements":"#A0A0A0","fourthLevelElements":"#D2D0CE","secondaryBackground":"#F0F6FB","visualStyles":{"*":{"*":{"background":[{"show":false}],"border":[{"show":false}],"dropShadow":[{"show":false}],"visualHeader":[{"show":true}],"title":[{"show":true,"fontFamily":"Segoe UI","fontSize":14,"fontBold":true,"fontColor":{"solid":{"color":"#0F4C81"}},"alignment":"left","background":{"solid":{"color":"#FFFFFF"}}}]}},"barChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":false}]}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}],"plotArea":[{"transparency":0}]}},"clusteredBarChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"stackedBarChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"hundredPercentStackedBarChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"dataLabels":[{"show":true,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"columnChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":false}]}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"clusteredColumnChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"stackedColumnChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"hundredPercentStackedColumnChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"dataLabels":[{"show":true,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"lineChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}],"shapes":[{"strokeWidth":2,"showMarker":false,"markerSize":3}]}},"areaChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"stackedAreaChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"ribbonChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"waterfallChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":true,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}],"sentimentColors":[{"increaseFill":{"solid":{"color":"#2A9D8F"}},"decreaseFill":{"solid":{"color":"#E76F51"}},"totalFill":{"solid":{"color":"#0F4C81"}}}]}},"scatterChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}],"fillPoint":[{"show":true}]}},"pieChart":{"*":{"legend":[{"show":true,"position":"Right","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"dataLabels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}},"labelDisplayUnits":0,"labelStyle":"category"}],"detail":[{"show":false}]}},"donutChart":{"*":{"legend":[{"show":true,"position":"Right","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"dataLabels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}},"labelStyle":"category"}],"innerRadius":[{"innerRadiusRatio":50}]}},"treemap":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"dataLabels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}],"categoryLabels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"map":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}],"bubbles":[{"minBubbleSize":10,"maxBubbleSize":40}]}},"filledMap":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"funnel":{"*":{"legend":[{"show":false}],"dataLabels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}},"labelStyle":"both"}]}},"gauge":{"*":{"dataLabels":[{"show":true,"fontSize":24,"fontFamily":"Segoe UI","color":{"solid":{"color":"#0F4C81"}}}],"gauge":[{"arcAngle":150,"startAngle":-150,"pinNeedle":false,"targetColor":{"solid":{"color":"#E76F51"}},"foregroundColor":{"solid":{"color":"#1F8AC0"}},"backgroundColor":{"solid":{"color":"#E0E0E0"}}}],"target":[{"show":true,"fontSize":12,"fontFamily":"Segoe UI","color":{"solid":{"color":"#666666"}}}]}},"card":{"*":{"dataLabels":[{"show":true,"fontSize":32,"fontFamily":"Segoe UI Light","color":{"solid":{"color":"#0F4C81"}},"labelDisplayUnits":0}],"categoryLabels":[{"show":true,"fontSize":12,"fontFamily":"Segoe UI","color":{"solid":{"color":"#666666"}}}],"wordWrap":[{"show":false}]}},"multiRowCard":{"*":{"dataLabels":[{"fontSize":14,"fontFamily":"Segoe UI","color":{"solid":{"color":"#0F4C81"}}}],"categoryLabels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#666666"}}}],"cardTitle":[{"show":true,"fontSize":12,"fontFamily":"Segoe UI Semibold","color":{"solid":{"color":"#0F4C81"}}}],"outline":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}},"weight":1}],"bar":[{"show":true,"color":{"solid":{"color":"#1F8AC0"}},"weight":4}]}},"kpi":{"*":{"indicator":[{"show":true,"thickness":3}],"trendline":[{"show":true,"color":{"solid":{"color":"#1F8AC0"}}}],"dataLabels":[{"show":true,"fontSize":28,"fontFamily":"Segoe UI Light","color":{"solid":{"color":"#0F4C81"}}}],"goals":[{"show":true,"fontSize":12,"fontFamily":"Segoe UI","color":{"solid":{"color":"#666666"}}}],"statusGraphic":[{"show":true}]}},"slicer":{"*":{"data":[{"fontFamily":"Segoe UI","fontSize":12,"fontColor":{"solid":{"color":"#333333"}}}],"selection":[{"selectAllCheckboxEnabled":false,"singleSelect":true}],"header":[{"show":true,"fontFamily":"Segoe UI Semibold","fontSize":12,"fontColor":{"solid":{"color":"#0F4C81"}},"background":{"solid":{"color":"#FFFFFF"}},"outline":"None"}],"items":[{"fontFamily":"Segoe UI","fontSize":11,"fontColor":{"solid":{"color":"#333333"}},"background":{"solid":{"color":"#FFFFFF"}},"outline":"Frame"}]}},"tableEx":{"*":{"grid":[{"outlineColor":{"solid":{"color":"#E0E0E0"}},"outlineWeight":1,"gridVertical":false,"gridHorizontal":true,"gridHorizontalColor":{"solid":{"color":"#E0E0E0"}},"gridHorizontalWeight":1,"rowPadding":4}],"columnHeaders":[{"fontFamily":"Segoe UI Semibold","fontSize":11,"fontColor":{"solid":{"color":"#FFFFFF"}},"background":{"solid":{"color":"#0F4C81"}},"outline":"None","alignment":"left"}],"values":[{"fontFamily":"Segoe UI","fontSize":11,"fontColor":{"solid":{"color":"#333333"}},"background":{"solid":{"color":"#FFFFFF"}},"bandedRowColor":{"solid":{"color":"#F0F6FB"}},"alignment":"left"}],"total":[{"totals":true,"fontFamily":"Segoe UI Semibold","fontSize":11,"fontColor":{"solid":{"color":"#0F4C81"}},"background":{"solid":{"color":"#E8F0F7"}},"outline":"Top","outlineColor":{"solid":{"color":"#0F4C81"}}}]}},"matrix":{"*":{"grid":[{"outlineColor":{"solid":{"color":"#E0E0E0"}},"outlineWeight":1,"gridVertical":false,"gridHorizontal":true,"gridHorizontalColor":{"solid":{"color":"#E0E0E0"}},"gridHorizontalWeight":1,"rowPadding":4}],"rowHeaders":[{"fontFamily":"Segoe UI","fontSize":11,"fontColor":{"solid":{"color":"#333333"}},"background":{"solid":{"color":"#FFFFFF"}},"outline":"None","stepped":true,"steppedLayoutIndentation":20,"expandCollapse":true}],"columnHeaders":[{"fontFamily":"Segoe UI Semibold","fontSize":11,"fontColor":{"solid":{"color":"#FFFFFF"}},"background":{"solid":{"color":"#0F4C81"}},"outline":"None","alignment":"left"}],"values":[{"fontFamily":"Segoe UI","fontSize":11,"fontColor":{"solid":{"color":"#333333"}},"background":{"solid":{"color":"#FFFFFF"}},"bandedRowColor":{"solid":{"color":"#F0F6FB"}},"alignment":"right"}],"subtotals":[{"rowSubtotals":true,"columnSubtotals":true,"fontFamily":"Segoe UI Semibold","fontSize":11,"fontColor":{"solid":{"color":"#0F4C81"}},"background":{"solid":{"color":"#E8F0F7"}},"outline":"TopBottom","outlineColor":{"solid":{"color":"#0F4C81"}},"perRowLevel":true,"perColumnLevel":true}]}},"lineClusteredColumnComboChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"y2AxisReferenceLine":[{"show":false}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"lineStackedColumnComboChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false}],"valueAxis":[{"show":true,"color":{"solid":{"color":"#666666"}},"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"gridlines":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}}}]}],"dataLabels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"decompositionTree":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"dataLabels":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","color":{"solid":{"color":"#333333"}}}],"header":[{"fontFamily":"Segoe UI Semibold","fontSize":11,"fontColor":{"solid":{"color":"#FFFFFF"}},"fill":{"solid":{"color":"#0F4C81"}}}]}},"shape":{"*":{"fill":[{"show":true,"fillColor":{"solid":{"color":"#1F8AC0"}},"transparency":0}],"line":[{"show":false,"strokeColor":{"solid":{"color":"#0F4C81"}},"strokeWidth":1}]}},"textbox":{"*":{"background":[{"show":false}],"border":[{"show":false}]}},"image":{"*":{"imageScaling":[{"imageScalingType":"Fit"}],"background":[{"show":false}]}},"actionButton":{"*":{"text":[{"show":true,"fontFamily":"Segoe UI","fontSize":12,"fontBold":false,"fontColor":{"solid":{"color":"#FFFFFF"}},"alignment":"center","verticalAlignment":"middle"}],"fill":[{"show":true,"color":{"solid":{"color":"#1F8AC0"}},"transparency":0}],"outline":[{"show":false}],"shadow":[{"show":false}]}}}};
+const THEME = {"name":"Customer360 Theme","textClasses":{"title":{"fontFace":"Segoe UI","fontSize":14,"fontBold":true,"fontColor":"#0F4C81"},"header":{"fontFace":"Segoe UI","fontSize":12,"fontBold":true,"fontColor":"#374649"},"label":{"fontFace":"Segoe UI","fontSize":10,"fontBold":false,"fontColor":"#666666"},"callout":{"fontFace":"Segoe UI","fontSize":45,"fontBold":false,"fontColor":"#374649"}},"dataColors":["#0F4C81","#1F8AC0","#3BBFCE","#70C1B3","#F4A261","#E76F51","#264653","#2A9D8F"],"background":"#FFFFFF","foreground":"#0F4C81","tableAccent":"#1F8AC0","good":"#1AAB40","neutral":"#D9B300","bad":"#D63554","maximum":"#1F8AC0","center":"#FFFFFF","minimum":"#E76F51","null":"#A0A0A0","firstLevelElements":"#0F4C81","secondLevelElements":"#374649","thirdLevelElements":"#A0A0A0","fourthLevelElements":"#D2D0CE","secondaryBackground":"#F0F6FB","visualStyles":{"*":{"*":{"background":[{"show":false}],"border":[{"show":false}],"dropShadow":[{"show":false}],"visualHeader":[{"show":true}],"title":[{"show":true,"fontFamily":"Segoe UI","fontSize":14,"fontColor":{"solid":{"color":"#0F4C81"}},"alignment":"left","background":{"solid":{"color":"#FFFFFF"}},"bold":true}]}},"barChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":false}],"valueAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":true,"gridlineColor":{"solid":{"color":"#E0E0E0"}}}],"plotArea":[{"transparency":0}],"labels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"clusteredBarChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}}}],"valueAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":true,"gridlineColor":{"solid":{"color":"#E0E0E0"}}}],"labels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"stackedBarChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}}}],"valueAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":true,"gridlineColor":{"solid":{"color":"#E0E0E0"}}}],"labels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"hundredPercentStackedBarChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}}}],"valueAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}}}],"labels":[{"show":true,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"columnChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":false}],"valueAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":true,"gridlineColor":{"solid":{"color":"#E0E0E0"}}}],"labels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"clusteredColumnChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}}}],"valueAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":true,"gridlineColor":{"solid":{"color":"#E0E0E0"}}}],"labels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"stackedColumnChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}}}],"valueAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":true,"gridlineColor":{"solid":{"color":"#E0E0E0"}}}],"labels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"hundredPercentStackedColumnChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}}}],"valueAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}}}],"labels":[{"show":true,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"lineChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}}}],"valueAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":true,"gridlineColor":{"solid":{"color":"#E0E0E0"}}}],"shapes":[{"strokeWidth":2,"showMarker":false,"markerSize":3}],"labels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"areaChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}}}],"valueAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":true,"gridlineColor":{"solid":{"color":"#E0E0E0"}}}],"labels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"stackedAreaChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}}}],"valueAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":true,"gridlineColor":{"solid":{"color":"#E0E0E0"}}}],"labels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"ribbonChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}}}],"valueAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":true,"gridlineColor":{"solid":{"color":"#E0E0E0"}}}],"labels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"waterfallChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}}}],"valueAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":true,"gridlineColor":{"solid":{"color":"#E0E0E0"}}}],"sentimentColors":[{"increaseFill":{"solid":{"color":"#2A9D8F"}},"decreaseFill":{"solid":{"color":"#E76F51"}},"totalFill":{"solid":{"color":"#0F4C81"}}}],"labels":[{"show":true,"fontSize":9,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"scatterChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":true,"gridlineColor":{"solid":{"color":"#E0E0E0"}}}],"valueAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":true,"gridlineColor":{"solid":{"color":"#E0E0E0"}}}],"fillPoint":[{"show":true}],"labels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"pieChart":{"*":{"legend":[{"show":true,"position":"Right","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"detail":[{"show":false}],"labels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}},"labelDisplayUnits":0,"labelStyle":"category"}]}},"donutChart":{"*":{"legend":[{"show":true,"position":"Right","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"innerRadius":[{"innerRadiusRatio":50}],"labels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}},"labelStyle":"category"}]}},"treemap":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryLabels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}],"labels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}}}]}},"map":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"bubbles":[{"minBubbleSize":10,"maxBubbleSize":40}],"labels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"filledMap":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"labels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"funnel":{"*":{"legend":[{"show":false}],"labels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#FFFFFF"}},"labelStyle":"both"}]}},"gauge":{"*":{"dataLabels":[{"show":true,"fontSize":24,"fontFamily":"Segoe UI","color":{"solid":{"color":"#0F4C81"}}}],"gauge":[{"arcAngle":150,"startAngle":-150,"pinNeedle":false,"targetColor":{"solid":{"color":"#E76F51"}},"foregroundColor":{"solid":{"color":"#1F8AC0"}},"backgroundColor":{"solid":{"color":"#E0E0E0"}}}],"target":[{"show":true,"fontSize":12,"fontFamily":"Segoe UI","color":{"solid":{"color":"#666666"}}}]}},"card":{"*":{"dataLabels":[{"show":true,"fontSize":32,"fontFamily":"Segoe UI Light","color":{"solid":{"color":"#0F4C81"}},"labelDisplayUnits":0}],"categoryLabels":[{"show":true,"fontSize":12,"fontFamily":"Segoe UI","color":{"solid":{"color":"#666666"}}}],"wordWrap":[{"show":false}]}},"multiRowCard":{"*":{"dataLabels":[{"fontSize":14,"fontFamily":"Segoe UI","color":{"solid":{"color":"#0F4C81"}}}],"categoryLabels":[{"show":true,"fontSize":10,"fontFamily":"Segoe UI","color":{"solid":{"color":"#666666"}}}],"cardTitle":[{"show":true,"fontSize":12,"fontFamily":"Segoe UI Semibold","color":{"solid":{"color":"#0F4C81"}}}],"outline":[{"show":true,"color":{"solid":{"color":"#E0E0E0"}},"weight":1}],"bar":[{"show":true,"color":{"solid":{"color":"#1F8AC0"}},"weight":4}]}},"kpi":{"*":{"indicator":[{"show":true,"thickness":3}],"trendline":[{"show":true,"color":{"solid":{"color":"#1F8AC0"}}}],"dataLabels":[{"show":true,"fontSize":28,"fontFamily":"Segoe UI Light","color":{"solid":{"color":"#0F4C81"}}}],"goals":[{"show":true,"fontSize":12,"fontFamily":"Segoe UI","color":{"solid":{"color":"#666666"}}}],"statusGraphic":[{"show":true}]}},"slicer":{"*":{"data":[{"fontFamily":"Segoe UI","fontSize":12,"fontColor":{"solid":{"color":"#333333"}}}],"selection":[{"selectAllCheckboxEnabled":false,"singleSelect":true}],"slicerHeader":[{"show":true,"fontFamily":"Segoe UI Semibold","fontColor":{"solid":{"color":"#0F4C81"}},"background":{"solid":{"color":"#FFFFFF"}},"outline":"None","textSize":12}],"slicerItems":[{"fontFamily":"Segoe UI","fontColor":{"solid":{"color":"#333333"}},"background":{"solid":{"color":"#FFFFFF"}},"outline":"Frame","textSize":11}]}},"tableEx":{"*":{"grid":[{"outlineColor":{"solid":{"color":"#E0E0E0"}},"outlineWeight":1,"gridVertical":false,"gridHorizontal":true,"gridHorizontalColor":{"solid":{"color":"#E0E0E0"}},"gridHorizontalWeight":1,"rowPadding":4}],"columnHeaders":[{"fontFamily":"Segoe UI Semibold","fontSize":11,"fontColor":{"solid":{"color":"#FFFFFF"}},"outline":"None","alignment":"left","backColor":{"solid":{"color":"#0F4C81"}}}],"values":[{"fontFamily":"Segoe UI","fontSize":11,"fontColor":{"solid":{"color":"#333333"}},"alignment":"left","backColor":{"solid":{"color":"#FFFFFF"}},"backColorSecondary":{"solid":{"color":"#F0F6FB"}}}],"total":[{"totals":true,"fontFamily":"Segoe UI Semibold","fontSize":11,"fontColor":{"solid":{"color":"#0F4C81"}},"outline":"Top","outlineColor":{"solid":{"color":"#0F4C81"}},"backColor":{"solid":{"color":"#E8F0F7"}}}]}},"matrix":{"*":{"grid":[{"outlineColor":{"solid":{"color":"#E0E0E0"}},"outlineWeight":1,"gridVertical":false,"gridHorizontal":true,"gridHorizontalColor":{"solid":{"color":"#E0E0E0"}},"gridHorizontalWeight":1,"rowPadding":4}],"rowHeaders":[{"fontFamily":"Segoe UI","fontSize":11,"fontColor":{"solid":{"color":"#333333"}},"outline":"None","stepped":true,"steppedLayoutIndentation":20,"expandCollapse":true,"backColor":{"solid":{"color":"#FFFFFF"}}}],"columnHeaders":[{"fontFamily":"Segoe UI Semibold","fontSize":11,"fontColor":{"solid":{"color":"#FFFFFF"}},"outline":"None","alignment":"left","backColor":{"solid":{"color":"#0F4C81"}}}],"values":[{"fontFamily":"Segoe UI","fontSize":11,"fontColor":{"solid":{"color":"#333333"}},"alignment":"right","backColor":{"solid":{"color":"#FFFFFF"}},"backColorSecondary":{"solid":{"color":"#F0F6FB"}}}],"subTotals":[{"rowSubtotals":true,"columnSubtotals":true,"fontFamily":"Segoe UI Semibold","fontSize":11,"fontColor":{"solid":{"color":"#0F4C81"}},"outline":"TopBottom","outlineColor":{"solid":{"color":"#0F4C81"}},"perRowLevel":true,"perColumnLevel":true,"backColor":{"solid":{"color":"#E8F0F7"}}}]}},"lineClusteredColumnComboChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}}}],"valueAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":true,"gridlineColor":{"solid":{"color":"#E0E0E0"}}}],"y2AxisReferenceLine":[{"show":false}],"labels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"lineStackedColumnComboChart":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"categoryAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}}}],"valueAxis":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","showAxisTitle":false,"labelColor":{"solid":{"color":"#666666"}},"gridlineShow":true,"gridlineColor":{"solid":{"color":"#E0E0E0"}}}],"labels":[{"show":false,"fontSize":9,"fontFamily":"Segoe UI"}]}},"decompositionTree":{"*":{"legend":[{"show":true,"position":"Top","showTitle":false,"labelColor":{"solid":{"color":"#444444"}},"fontFamily":"Segoe UI","fontSize":10}],"dataLabels":[{"show":true,"fontSize":11,"fontFamily":"Segoe UI","color":{"solid":{"color":"#333333"}}}],"header":[{"fontFamily":"Segoe UI Semibold","fontSize":11,"fontColor":{"solid":{"color":"#FFFFFF"}},"fill":{"solid":{"color":"#0F4C81"}}}]}},"shape":{"*":{"fill":[{"show":true,"fillColor":{"solid":{"color":"#1F8AC0"}},"transparency":0}],"shapeOutline":[{"show":false,"lineColor":{"solid":{"color":"#0F4C81"}},"weight":1}]}},"textbox":{"*":{"background":[{"show":false}],"border":[{"show":false}]}},"image":{"*":{"imageScaling":[{"imageScalingType":"Fit"}],"background":[{"show":false}]}},"actionButton":{"*":{"text":[{"show":true,"fontFamily":"Segoe UI","fontSize":12,"fontColor":{"solid":{"color":"#FFFFFF"}},"alignment":"center","verticalAlignment":"middle","bold":false}],"fill":[{"show":true,"transparency":0,"fillColor":{"solid":{"color":"#1F8AC0"}}}],"outline":[{"show":false}],"shadow":[{"show":false}]}}}};
 
 // ── Visual display names ──
 const VISUAL_LABELS = {
@@ -1187,6 +1317,22 @@ function syntaxHL(json) {
 
 function buildExportTheme() {
   const t = JSON.parse(JSON.stringify(THEME));
+  // ── Remap internal card keys to correct PBI theme JSON keys ──
+  const SLICER_VISUALS = ['slicer','advancedSlicerVisual','listSlicer'];
+  for (const vk of Object.keys(t.visualStyles)) {
+    const star = t.visualStyles[vk]?.['*'];
+    if (!star) continue;
+    // shapeOutline → outline  (shape visual)
+    if (vk === 'shape' && star.shapeOutline !== undefined) {
+      star.outline = star.shapeOutline;
+      delete star.shapeOutline;
+    }
+    // slicerHeader → header, slicerItems → items  (slicer-family)
+    if (SLICER_VISUALS.includes(vk)) {
+      if (star.slicerHeader !== undefined) { star.header = star.slicerHeader; delete star.slicerHeader; }
+      if (star.slicerItems  !== undefined) { star.items  = star.slicerItems;  delete star.slicerItems;  }
+    }
+  }
   if (Object.keys(PAGE_SETTINGS).length > 0) {
     if (!t.visualStyles.__page__) t.visualStyles.__page__ = {'*': {}};
     Object.entries(PAGE_SETTINGS).forEach(([card, data]) => {
@@ -1679,7 +1825,8 @@ function buildModalCard(cardName, data, visualKey, startOpen) {
     data:'Data', selection:'Selection', header:'Header', items:'Items',
     grid:'Grid', columnHeaders:'Column Headers', values:'Values', total:'Total',
     rowHeaders:'Row Headers', subtotals:'Subtotals', bubbles:'Bubbles',
-    cardTitle:'Card Title', indicator:'Indicator', trendline:'Trend Line',
+    cardTitle:'Card Title', shapeOutline:'Outline', slicerHeader:'Header', slicerItems:'Items',
+    indicator:'Indicator', trendline:'Trend Line',
     goals:'Goals', statusGraphic:'Status Indicator', fill:'Fill', line:'Line',
     outline:'Outline', shadow:'Shadow', border:'Border', background:'Background',
     text:'Text', y2AxisReferenceLine:'Secondary Axis Reference Line',
@@ -1997,11 +2144,16 @@ function renderVisualPreview(vk, canvas, isModal) {
   const legendPos     = _lp.includes('right') ? 'right' : _lp.includes('left') ? 'left' : _lp.includes('bottom') ? 'bottom' : 'top';
   const legendColor   = rcv(vk,'legend','labelColor','#444444');
   const legendFontSz  = rcv(vk,'legend','fontSize', isModal?10:8);
+  const legendBold    = rcv(vk,'legend','bold', false);
+  const legendItalic  = rcv(vk,'legend','italic', false);
+  const legendFamily  = rcv(vk,'legend','fontFamily', 'Segoe UI');
 
   // ── Category axis
   const catShow    = rcv(vk,'categoryAxis','show', true);
   const catColor   = rcv(vk,'categoryAxis','labelColor','#666666');
   const catFontSz  = rcv(vk,'categoryAxis','fontSize', isModal?11:9);
+  const catBold    = rcv(vk,'categoryAxis','bold', false);
+  const catItalic  = rcv(vk,'categoryAxis','italic', false);
   const catGridShow= rcv(vk,'categoryAxis','gridlineShow', false);
   const catGridCol = rcv(vk,'categoryAxis','gridlineColor','#E0E0E0');
 
@@ -2009,12 +2161,17 @@ function renderVisualPreview(vk, canvas, isModal) {
   const valShow    = rcv(vk,'valueAxis','show', true);
   const valColor   = rcv(vk,'valueAxis','labelColor','#666666');
   const valFontSz  = rcv(vk,'valueAxis','fontSize', isModal?11:9);
+  const valBold    = rcv(vk,'valueAxis','bold', false);
+  const valItalic  = rcv(vk,'valueAxis','italic', false);
   const gridShow   = rcv(vk,'valueAxis','gridlineShow', true);
   const gridCol    = rcv(vk,'valueAxis','gridlineColor','#E0E0E0');
 
   // ── Data point
   const dpDefaultColor = rcv(vk,'dataPoint','defaultColor', null);
   const dpAlpha        = 1 - (rcv(vk,'dataPoint','fillTransparency', 0) / 100);
+  const dpBorderShow   = rcv(vk,'dataPoint','borderShow', false);
+  const dpBorderColor  = rcv(vk,'dataPoint','borderColor', '#E0E0E0');
+  const dpBorderSize   = rcv(vk,'dataPoint','borderSize', 1);
 
   // ── Data labels
   const labShow   = rcv(vk,'labels','show', false);
@@ -2022,11 +2179,13 @@ function renderVisualPreview(vk, canvas, isModal) {
   const labFontSz = rcv(vk,'labels','fontSize', isModal?9:8);
 
   // ── Title
-  const titleShow  = rcv(vk,'title','show', true);
-  const titleColor = rcv(vk,'title','fontColor','#0F4C81');
-  const titleFontSz= Math.min(rcv(vk,'title','fontSize', 14), isModal?16:13);
-  const titleBold  = rcv(vk,'title','bold', true);
-  const titleText  = rcv(vk,'title','text','') || 'Title';
+  const titleShow   = rcv(vk,'title','show', true);
+  const titleColor  = rcv(vk,'title','fontColor','#0F4C81');
+  const titleFontSz = Math.min(rcv(vk,'title','fontSize', 14), isModal?16:13);
+  const titleBold   = rcv(vk,'title','bold', true);
+  const titleItalic = rcv(vk,'title','italic', false);
+  const titleAlign  = (rcv(vk,'title','alignment','left')||'left').toLowerCase();
+  const titleText   = rcv(vk,'title','text','') || 'Title';
   const displayTitle = titleText.length > 28 ? titleText.slice(0,28)+'…' : titleText;
 
   // ── Background
@@ -2042,9 +2201,10 @@ function renderVisualPreview(vk, canvas, isModal) {
   if (titleShow) {
     titleH = titleFontSz + 6;
     ctx.fillStyle = titleColor;
-    ctx.font = `${titleBold?'bold ':''}${titleFontSz}px Segoe UI`;
-    ctx.textAlign = 'left';
-    ctx.fillText(displayTitle, 6, titleFontSz + 2);
+    ctx.font = [titleItalic?'italic':'', titleBold?'bold':'', `${titleFontSz}px`, 'Segoe UI'].filter(Boolean).join(' ');
+    ctx.textAlign = titleAlign === 'center' ? 'center' : titleAlign === 'right' ? 'right' : 'left';
+    const _tx = titleAlign === 'center' ? W/2 : titleAlign === 'right' ? W-6 : 6;
+    ctx.fillText(displayTitle, _tx, titleFontSz + 2);
   }
 
   // ── Border (canvas 2D: drawn before content so content paints on top at edges)
@@ -2071,30 +2231,44 @@ function renderVisualPreview(vk, canvas, isModal) {
   const fontSize = isModal ? 11 : 9;
 
   // ── Axis title settings (for Chart.js scales)
-  const catAxisTitleShow  = rcv(vk,'categoryAxis','showAxisTitle', false);
-  const catAxisTitleText  = rcv(vk,'categoryAxis','titleText', '');
-  const catAxisTitleColor = rcv(vk,'categoryAxis','titleColor', '#666666');
-  const valAxisTitleShow  = rcv(vk,'valueAxis','showAxisTitle', false);
-  const valAxisTitleText  = rcv(vk,'valueAxis','titleText', '');
-  const valAxisTitleColor = rcv(vk,'valueAxis','titleColor', '#666666');
+  const catAxisTitleShow   = rcv(vk,'categoryAxis','showAxisTitle', false);
+  const catAxisTitleText   = rcv(vk,'categoryAxis','titleText', '');
+  const catAxisTitleColor  = rcv(vk,'categoryAxis','titleColor', '#666666');
+  const catAxisTitleFontSz = rcv(vk,'categoryAxis','titleFontSize', isModal?11:9);
+  const catAxisTitleBold   = rcv(vk,'categoryAxis','titleBold', false);
+  const valAxisTitleShow   = rcv(vk,'valueAxis','showAxisTitle', false);
+  const valAxisTitleText   = rcv(vk,'valueAxis','titleText', '');
+  const valAxisTitleColor  = rcv(vk,'valueAxis','titleColor', '#666666');
+  const valAxisTitleFontSz = rcv(vk,'valueAxis','titleFontSize', isModal?11:9);
+  const valAxisTitleBold   = rcv(vk,'valueAxis','titleBold', false);
 
   // bx = base CATEGORY axis, by = base VALUE axis — spread into each chart's scales
-  const bx = { display:catShow, ticks:{color:catColor, font:{size:catFontSz}},
+  const bx = { display:catShow,
+               ticks:{color:catColor, font:{size:catFontSz, weight:catBold?'bold':'normal', style:catItalic?'italic':'normal'}},
                grid:{display:catGridShow, color:catGridCol}, border:{display:false},
-               title:{display:catAxisTitleShow && isModal, text:catAxisTitleText, color:catAxisTitleColor} };
-  const by = { display:valShow, ticks:{color:valColor, font:{size:valFontSz}},
+               title:{display:catAxisTitleShow && isModal, text:catAxisTitleText||'​', color:catAxisTitleColor,
+                      font:{size:catAxisTitleFontSz, weight:catAxisTitleBold?'bold':'normal'}} };
+  const by = { display:valShow,
+               ticks:{color:valColor, font:{size:valFontSz, weight:valBold?'bold':'normal', style:valItalic?'italic':'normal'}},
                grid:{display:gridShow, color:gridCol}, border:{display:false},
-               title:{display:valAxisTitleShow && isModal, text:valAxisTitleText, color:valAxisTitleColor} };
+               title:{display:valAxisTitleShow && isModal, text:valAxisTitleText||'​', color:valAxisTitleColor,
+                      font:{size:valAxisTitleFontSz, weight:valAxisTitleBold?'bold':'normal'}} };
+
+  // border helper for bar/column datasets
+  const bord = dpBorderShow ? {borderColor:dpBorderColor, borderWidth:dpBorderSize} : {borderColor:'transparent', borderWidth:0};
+
   // Chart.js plugins.title handles title rendering so Chart.js canvas-clear doesn't erase it
   const basePlugins = {
-    legend:{ display:legendShow && isModal, position:legendPos, labels:{font:{size:legendFontSz}, color:legendColor, boxWidth:10} },
+    legend:{ display:legendShow && isModal, position:legendPos,
+             labels:{font:{size:legendFontSz, weight:legendBold?'bold':'normal', style:legendItalic?'italic':'normal', family:legendFamily},
+                     color:legendColor, boxWidth:10} },
     tooltip:{ enabled:false },
     title:{
       display: titleShow,
       text: displayTitle,
       color: titleColor,
-      font:{ size: titleFontSz, weight: titleBold ? 'bold' : 'normal', family: 'Segoe UI' },
-      align: 'start',
+      font:{ size: titleFontSz, weight: titleBold ? 'bold' : 'normal', style: titleItalic ? 'italic' : 'normal', family: 'Segoe UI' },
+      align: titleAlign === 'center' ? 'center' : titleAlign === 'right' ? 'end' : 'start',
       padding:{ top:2, bottom:4 }
     }
   };
@@ -2105,11 +2279,11 @@ function renderVisualPreview(vk, canvas, isModal) {
     const stacked  = vk==='stackedBarChart'||vk==='hundredPercentStackedBarChart';
     const pct      = vk==='hundredPercentStackedBarChart';
     const datasets = vk==='barChart'
-      ? [{ label:'A', data:SD1, backgroundColor:sc(0) }]
+      ? [{ label:'A', data:SD1, backgroundColor:sc(0), ...bord }]
       : [
-          { label:'A', data:SD1, backgroundColor:sc(0) },
-          { label:'B', data:SD2, backgroundColor:sc(1) },
-          { label:'C', data:SD3, backgroundColor:sc(2) },
+          { label:'A', data:SD1, backgroundColor:sc(0), ...bord },
+          { label:'B', data:SD2, backgroundColor:sc(1), ...bord },
+          { label:'C', data:SD3, backgroundColor:sc(2), ...bord },
         ];
     return new Chart(ctx,{
       type:'bar',
@@ -2125,11 +2299,11 @@ function renderVisualPreview(vk, canvas, isModal) {
     const stacked  = vk==='stackedColumnChart'||vk==='hundredPercentStackedColumnChart';
     const pct      = vk==='hundredPercentStackedColumnChart';
     const datasets = vk==='columnChart'
-      ? [{ label:'A', data:SD1, backgroundColor:sc(0) }]
+      ? [{ label:'A', data:SD1, backgroundColor:sc(0), ...bord }]
       : [
-          { label:'A', data:SD1, backgroundColor:sc(0) },
-          { label:'B', data:SD2, backgroundColor:sc(1) },
-          { label:'C', data:SD3, backgroundColor:sc(2) },
+          { label:'A', data:SD1, backgroundColor:sc(0), ...bord },
+          { label:'B', data:SD2, backgroundColor:sc(1), ...bord },
+          { label:'C', data:SD3, backgroundColor:sc(2), ...bord },
         ];
     return new Chart(ctx,{
       type:'bar',
@@ -2376,13 +2550,13 @@ function renderVisualPreview(vk, canvas, isModal) {
 
   // ── Slicer (canvas 2D) ──
   if (['slicer','advancedSlicerVisual','listSlicer'].includes(vk)) {
-    const hc      = rcv(vk,'header','fontColor','#0F4C81');
-    const hbg     = rcv(vk,'header','background','#FFFFFF');
-    const hFontSz = rcv(vk,'header','fontSize', 12);
-    const hShow   = rcv(vk,'header','show', true);
-    const ic      = rcv(vk,'items','fontColor','#333333');
-    const ibg     = rcv(vk,'items','background','#FFFFFF');
-    const iFontSz = rcv(vk,'items','fontSize', 11);
+    const hc      = rcv(vk,'slicerHeader','fontColor','#0F4C81');
+    const hbg     = rcv(vk,'slicerHeader','background','#FFFFFF');
+    const hFontSz = rcv(vk,'slicerHeader','textSize', 12);
+    const hShow   = rcv(vk,'slicerHeader','show', true);
+    const ic      = rcv(vk,'slicerItems','fontColor','#333333');
+    const ibg     = rcv(vk,'slicerItems','background','#FFFFFF');
+    const iFontSz = rcv(vk,'slicerItems','textSize', 11);
     const accentCol = rcv(vk,'slider','color', col(0));
     const mode    = rcv(vk,'data','mode','VerticalList');
     const ty      = titleH + 2;
@@ -2450,9 +2624,9 @@ function renderVisualPreview(vk, canvas, isModal) {
 
   // ── Table (canvas 2D) ──
   if (vk==='tableEx'||vk==='pivotTable') {
-    const hbg = rcv(vk,'columnHeaders','background','#0F4C81');
+    const hbg = rcv(vk,'columnHeaders','backColor','#0F4C81');
     const hfc = rcv(vk,'columnHeaders','fontColor','#FFFFFF');
-    const banded = rcv(vk,'values','bandedRowColor','#F0F6FB');
+    const banded = rcv(vk,'values','backColorSecondary','#F0F6FB');
     const cols=['Name','Region','Sales','Growth'];
     const rows=[['Adams','North','$1,284','▲ 12%'],['Brown','South','$942','▼ 3%'],['Clark','East','$1,830','▲ 8%']];
     const cw=W/cols.length, rh=(H-titleH)/(rows.length+1);
@@ -2474,9 +2648,9 @@ function renderVisualPreview(vk, canvas, isModal) {
 
   // ── Matrix (canvas 2D) ──
   if (vk==='matrix') {
-    const hbg = rcv(vk,'columnHeaders','background','#0F4C81');
+    const hbg = rcv(vk,'columnHeaders','backColor','#0F4C81');
     const hfc = rcv(vk,'columnHeaders','fontColor','#FFFFFF');
-    const rbg = rcv(vk,'rowHeaders','background','#FFFFFF');
+    const rbg = rcv(vk,'rowHeaders','backColor','#FFFFFF');
     const cols=['','Q1','Q2','Q3']; const rows=[['North',42,68,55],['South',30,45,60],['East',20,38,49],['Total',92,151,164]];
     const cw=W/cols.length, rh=(H-titleH)/(rows.length+1);
     ctx.fillStyle=hbg; ctx.fillRect(0,titleH,W,rh);
