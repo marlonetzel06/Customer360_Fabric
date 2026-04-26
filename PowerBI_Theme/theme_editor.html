@@ -208,6 +208,9 @@
     background: none;
     flex-shrink: 0;
   }
+  input[type="color"] { padding: 0; }
+  input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; border-radius: 3px; }
+  input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
   /* Vertical divider between groups */
   .gb-divider {
     width: 1px;
@@ -2059,10 +2062,12 @@ function openEditModal(key, label) {
 
   // Expand / Collapse all toolbar
   const toolbar = document.createElement('div');
-  toolbar.style.cssText = 'display:flex;gap:8px;margin-bottom:12px;align-items:center;position:sticky;top:0;background:#fff;z-index:2;padding:8px 0 8px;border-bottom:1px solid #eef2f8;';
+  toolbar.className = 'modal-toolbar';
+  toolbar.style.cssText = 'display:flex;gap:8px;margin-bottom:12px;align-items:center;position:sticky;top:0;z-index:2;padding:8px 0 8px;border-bottom:1px solid #eef2f8;';
   const btnExpandAll = document.createElement('button');
   btnExpandAll.textContent = 'Expand All';
-  btnExpandAll.style.cssText = 'font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid #1f8ac0;background:#fff;color:#1f8ac0;cursor:pointer;';
+  btnExpandAll.className = 'modal-tb-btn';
+  btnExpandAll.style.cssText = 'font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid #1f8ac0;color:#1f8ac0;cursor:pointer;';
   const btnCollapseAll = document.createElement('button');
   btnCollapseAll.textContent = 'Collapse All';
   btnCollapseAll.style.cssText = 'font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid #aaa;background:#fff;color:#555;cursor:pointer;';
