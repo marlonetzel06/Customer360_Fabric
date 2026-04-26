@@ -367,3 +367,65 @@ test('downloadDeltaJSON function exists and is callable', async ({ page }) => {
   const exists = await page.evaluate(() => typeof downloadDeltaJSON === 'function');
   expect(exists).toBe(true);
 });
+
+// ── Dark / Light Mode Toggle ──────────────────────────────────────────────────
+
+test('dark mode: toggle button exists in toolbar', async ({ page }) => {
+  const btn = await page.$('#dark-mode-toggle');
+  expect(btn).toBeTruthy();
+});
+
+test('dark mode: default state is light (no data-dark attribute)', async ({ page }) => {
+  const hasDark = await page.evaluate(() => document.documentElement.hasAttribute('data-dark'));
+  expect(hasDark).toBe(false);
+});
+
+test('dark mode: toggleDarkMode() adds data-dark attribute', async ({ page }) => {
+  await page.evaluate(() => toggleDarkMode());
+  const hasDark = await page.evaluate(() => document.documentElement.hasAttribute('data-dark'));
+  expect(hasDark).toBe(true);
+});
+
+test('dark mode: toggleDarkMode() twice returns to light mode', async ({ page }) => {
+  await page.evaluate(() => { toggleDarkMode(); toggleDarkMode(); });
+  const hasDark = await page.evaluate(() => document.documentElement.hasAttribute('data-dark'));
+  expect(hasDark).toBe(false);
+});
+
+test('dark mode: toggle button icon switches between moon and sun', async ({ page }) => {
+  const before = await page.locator('#dark-mode-toggle').textContent();
+  await page.evaluate(() => toggleDarkMode());
+  const after = await page.locator('#dark-mode-toggle').textContent();
+  expect(before).not.toBe(after);
+});
+
+test('dark mode: persists to localStorage', async ({ page }) => {
+  await page.evaluate(() => toggleDarkMode());
+  const stored = await page.evaluate(() => localStorage.getItem('pbi-editor-dark'));
+  expect(stored).toBe('1');
+  await page.evaluate(() => toggleDarkMode());
+  const storedOff = await page.evaluate(() => localStorage.getItem('pbi-editor-dark'));
+  expect(storedOff).toBe('0');
+});
+
+test('dark mode: loads dark mode from localStorage on page reload', async ({ page }) => {
+  await page.evaluate(() => localStorage.setItem('pbi-editor-dark', '1'));
+  await page.reload();
+  await page.waitForSelector('#visual-list li', { timeout: 10000 });
+  const hasDark = await page.evaluate(() => document.documentElement.hasAttribute('data-dark'));
+  expect(hasDark).toBe(true);
+});
+
+test('dark mode: sidebar background changes in dark mode', async ({ page }) => {
+  const lightBg = await page.evaluate(() => getComputedStyle(document.getElementById('sidebar')).backgroundColor);
+  await page.evaluate(() => toggleDarkMode());
+  const darkBg = await page.evaluate(() => getComputedStyle(document.getElementById('sidebar')).backgroundColor);
+  expect(lightBg).not.toBe(darkBg);
+});
+
+test('dark mode: settings panel background changes in dark mode', async ({ page }) => {
+  const lightBg = await page.evaluate(() => getComputedStyle(document.getElementById('settings-panel')).backgroundColor);
+  await page.evaluate(() => toggleDarkMode());
+  const darkBg = await page.evaluate(() => getComputedStyle(document.getElementById('settings-panel')).backgroundColor);
+  expect(lightBg).not.toBe(darkBg);
+});
