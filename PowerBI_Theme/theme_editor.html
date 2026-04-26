@@ -513,6 +513,114 @@
   .copy-group-label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; margin: 10px 0 4px; }
   .copy-check-row { display: flex; align-items: center; gap: 6px; font-size: 12px; margin: 3px 0; }
   #copy-dialog-btns { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+
+  /* ── DARK MODE TOGGLE BUTTON ── */
+  #dark-mode-toggle {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1.5px solid #c8d8ea; background: #fff;
+    cursor: pointer; font-size: 17px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background .2s, border-color .2s;
+    line-height: 1;
+  }
+  #dark-mode-toggle:hover { background: #f0f5fb; border-color: #1f8ac0; }
+
+  /* ── DARK MODE OVERRIDES ── */
+  html[data-dark] body { background: #1a1b2e; color: #c0caf5; }
+
+  html[data-dark] #sidebar { background: #0e1423; }
+  html[data-dark] #sidebar h2 { color: #5d7fa8; }
+  html[data-dark] #sidebar-search { background: #192035; color: #c0caf5; }
+  html[data-dark] #sidebar-search::placeholder { color: #4a6480; }
+  html[data-dark] #visual-list { scrollbar-color: #2a3558 transparent; }
+  html[data-dark] #visual-list::-webkit-scrollbar-thumb { background: #2a3558; }
+  html[data-dark] #visual-list li:hover { background: #192035; }
+  html[data-dark] #visual-list li.active { background: #1c3566; border-left-color: #89b4fa; }
+  html[data-dark] #visual-list li .badge { background: #192035; color: #5d7fa8; }
+  html[data-dark] #visual-list li.active .badge { background: #0e1423; }
+
+  html[data-dark] #settings-panel { background: #1a1b2e; scrollbar-color: #2a3558 transparent; }
+  html[data-dark] #settings-panel::-webkit-scrollbar-thumb { background: #2a3558; }
+  html[data-dark] #app-headline { color: #89b4fa; }
+  html[data-dark] #app-headline span { color: #74c7ec; }
+  html[data-dark] #app-headline small { color: #505373; }
+  html[data-dark] #panel-title { color: #89b4fa !important; }
+
+  html[data-dark] #global-bar { background: #24263e !important; box-shadow: 0 1px 4px rgba(0,0,0,.4) !important; }
+  html[data-dark] #global-bar-header { border-bottom-color: #2d3555; }
+  html[data-dark] #global-bar-header-title { color: #89b4fa; }
+  html[data-dark] #global-bar-header-sub { color: #505373; }
+  html[data-dark] #global-bar-toggle { border-color: #2d3555; color: #89b4fa; }
+  html[data-dark] #global-bar-toggle:hover { background: #2d3055; }
+
+  html[data-dark] .gb-row { background: #1e2038; border-color: #2d3555; }
+  html[data-dark] .gb-pill { color: #89b4fa; background: #24263e; border-color: #373963; }
+  html[data-dark] .gb-ctrl { color: #c0caf5; }
+  html[data-dark] .gb-ctrl-label { color: #a9b1d6; }
+  html[data-dark] .gb-swatch { border-color: #373963; }
+  html[data-dark] .gb-divider { background: #373963; }
+  html[data-dark] .gb-typo-col { background: #24263e; border-color: #373963; }
+  html[data-dark] .gb-typo-head { color: #89b4fa; background: #2d3055; }
+  html[data-dark] .gb-typo-font,
+  html[data-dark] .gb-typo-size { background: #1e2038; border-color: #373963; color: #c0caf5; }
+  html[data-dark] .gb-typo-row label { color: #a9b1d6; }
+
+  html[data-dark] #page-settings-bar { background: #1e2038 !important; border-color: #2d3555 !important; }
+  html[data-dark] #page-settings-bar span { color: #89b4fa !important; }
+  html[data-dark] #page-settings-bar button { background: #24263e !important; color: #89b4fa !important; border-color: #373963 !important; }
+
+  html[data-dark] #json-toggle-btn { background: #24263e !important; color: #89b4fa !important; border-color: #373963 !important; }
+
+  html[data-dark] .vis-card { background: #24263e; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+  html[data-dark] .vis-card:hover { border-color: #89b4fa; box-shadow: 0 3px 10px rgba(137,180,250,.15); }
+  html[data-dark] .vis-card .vc-preview-wrap { background: #1e2038; }
+  html[data-dark] .vis-card .vc-name { color: #a9b1d6; }
+
+  html[data-dark] #modal { background: #24263e; }
+  html[data-dark] #modal-header { background: #0e1423; }
+  html[data-dark] #modal-preview-pane { background: #1e2038; border-right-color: #2d3555; }
+  html[data-dark] #modal-preview-label { color: #89b4fa; border-bottom-color: #2d3555; }
+  html[data-dark] #modal-settings-pane { scrollbar-color: #2a3558 transparent; }
+  html[data-dark] #modal-settings-pane::-webkit-scrollbar-thumb { background: #2a3558; }
+
+  html[data-dark] .card { background: #24263e; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+  html[data-dark] .card-header { background: #2d3055; color: #89b4fa; }
+  html[data-dark] .card-header:hover { background: #36395e; border-left-color: #89b4fa; }
+  html[data-dark] .card-header.open { border-left-color: #89b4fa; }
+  html[data-dark] .prop-row { border-bottom-color: #2d3555; }
+  html[data-dark] .prop-label { color: #c0caf5; }
+  html[data-dark] .prop-control label { color: #a9b1d6; }
+  html[data-dark] .toggle-slider { background: #474a6e; }
+  html[data-dark] .toggle input:checked + .toggle-slider { background: #89b4fa; }
+  html[data-dark] .toggle-slider:before { background: #1e2038; }
+  html[data-dark] input[type=number].prop-num,
+  html[data-dark] input[type=text].prop-text,
+  html[data-dark] select.prop-select { background: #1e2038; border-color: #373963; color: #c0caf5; }
+  html[data-dark] .color-hex { color: #6272a4; }
+  html[data-dark] .sub-card { background: #1e2038; border-color: #373963; }
+  html[data-dark] .sub-card-title { color: #74c7ec; }
+  html[data-dark] .placeholder-msg { color: #505373; }
+
+  html[data-dark] #theme-toolbar { /* inherits from settings-panel bg */ }
+  html[data-dark] #theme-name-input { color: #89b4fa; border-bottom-color: #373963; }
+  html[data-dark] #theme-name-input:focus { border-bottom-color: #89b4fa; }
+  html[data-dark] #preset-select { background: #1e2038; border-color: #373963; color: #c0caf5; }
+  html[data-dark] .tb-btn-import { background: #24263e !important; }
+  html[data-dark] .tb-btn-import:hover { background: #1e2038 !important; }
+  html[data-dark] .tb-btn-delta { background: #24263e !important; }
+  html[data-dark] .tb-btn-delta:hover { background: #1e2038 !important; }
+  html[data-dark] #palette-gen-btn { background: #24263e; border-color: #373963; color: #a9b1d6; }
+  html[data-dark] #palette-gen-btn:hover { border-color: #89b4fa; color: #89b4fa; }
+  html[data-dark] #dark-mode-toggle { border-color: #373963; background: #24263e; }
+  html[data-dark] #dark-mode-toggle:hover { background: #2d3055; }
+
+  html[data-dark] #copy-dialog { background: #24263e; box-shadow: 0 8px 32px rgba(0,0,0,.6); }
+  html[data-dark] #copy-dialog h3 { color: #89b4fa; }
+  html[data-dark] .copy-group-label { color: #505373; }
+  html[data-dark] .copy-check-row { color: #c0caf5; }
+  html[data-dark] #copy-dialog-btns button:first-child { background: #1e2038 !important; border-color: #373963 !important; color: #c0caf5 !important; }
+
+  html[data-dark] #modal-settings-pane button[style] { filter: brightness(0.8) saturate(0.9); }
 </style>
 <script>/*!
  * Chart.js v4.5.1
@@ -570,6 +678,7 @@
         </select>
         <button class="tb-btn tb-btn-import" onclick="document.getElementById('theme-import-file').click()">Import JSON</button>
         <input type="file" id="theme-import-file" accept=".json" style="display:none" onchange="handleImportFile(this)">
+        <button id="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle dark / light mode">&#x1F31E;</button>
       </div>
     </div>
     <h1 id="app-headline">JSON <span>Designer</span><small>Power BI Theme Editor</small></h1>
@@ -671,7 +780,7 @@
     </div>
     <p class="subtitle" id="panel-subtitle" style="margin-bottom:16px;">Click any visual card to edit its theme settings.</p>
     <!-- Page Settings section (outside visual grid) -->
-    <div style="background:#f0f5fb;border:1px solid #c8d8ea;border-radius:8px;padding:10px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
+    <div id="page-settings-bar" style="background:#f0f5fb;border:1px solid #c8d8ea;border-radius:8px;padding:10px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
       <div>
         <span style="font-size:13px;font-weight:700;color:#0f4c81;">Page Settings</span>
         <span style="font-size:11px;color:#666;margin-left:10px;">Canvas size, background, wallpaper, filter pane</span>
@@ -3034,6 +3143,28 @@ function selectVisual(key, label, el) {
   updateJSON();
   openEditModal(key, label);
 }
+
+// ── DARK / LIGHT MODE ──
+function toggleDarkMode() {
+  const isDark = document.documentElement.hasAttribute('data-dark');
+  if (isDark) {
+    document.documentElement.removeAttribute('data-dark');
+    document.getElementById('dark-mode-toggle').textContent = '🌞';
+    localStorage.setItem('pbi-editor-dark', '0');
+  } else {
+    document.documentElement.setAttribute('data-dark', '');
+    document.getElementById('dark-mode-toggle').textContent = '🌙';
+    localStorage.setItem('pbi-editor-dark', '1');
+  }
+}
+(function initDarkMode() {
+  if (localStorage.getItem('pbi-editor-dark') === '1') {
+    document.documentElement.setAttribute('data-dark', '');
+    // Script is deferred to end of body, DOM exists at this point
+    const btn = document.getElementById('dark-mode-toggle');
+    if (btn) btn.textContent = '🌙';
+  }
+})();
 
 // ── PRESETS ──
 const PRESETS = {
