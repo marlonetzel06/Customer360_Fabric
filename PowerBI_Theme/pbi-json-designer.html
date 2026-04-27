@@ -582,8 +582,8 @@
   #palette-base-color { width: 28px; height: 28px; border: 1.5px solid #c8d8e8; border-radius: 4px; cursor: pointer; padding: 1px; }
   .ph-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
   .ph-row-label { font-size: 10px; color: #666; width: 90px; flex-shrink: 0; }
-  .ph-swatches { display: flex; gap: 3px; flex: 1; }
-  .ph-swatch { width: 22px; height: 22px; border-radius: 4px; cursor: default; border: 1px solid rgba(0,0,0,.08); }
+  .ph-swatches { display: flex; gap: 2px; flex: 1; min-width: 0; }
+  .ph-swatch { width: 18px; height: 18px; border-radius: 3px; cursor: default; border: 1px solid rgba(0,0,0,.08); flex-shrink: 0; }
   .ph-apply-btn {
     font-size: 10px; padding: 2px 8px; border-radius: 4px; cursor: pointer;
     border: 1px solid #c8d8e8; background: #f0f5fb; color: #0f4c81;
@@ -3431,25 +3431,24 @@ function applyHarmony(name, colors) {
 function shufflePalette() {
   const base = document.getElementById('palette-base-color').value;
   const hsl = hexToHSL(base);
-  const jitter = () => (Math.random() - 0.5) * 20;
-  const hues = (_lastHarmony
-    ? Object.entries(HARMONIES).find(([n]) => n === _lastHarmony.name)?.[1]
-    : HARMONIES.Analogous)(hsl.h);
-  const colors = (hues || [0,30,60,90,120,150,210,270]).map(hu => {
-    const h = ((hu % 360) + 360) % 360;
-    const s = Math.max(20, Math.min(92, hsl.s + jitter()));
-    const l = Math.max(22, Math.min(76, hsl.l + jitter()));
-    return hslToHex(h, s, l);
-  });
+  const sJit = (Math.random() - 0.5) * 24;
+  const lJit = (Math.random() - 0.5) * 20;
   const container = document.getElementById('palette-harmony-rows');
-  container.querySelectorAll('.ph-row').forEach((row, ri) => {
-    const name = row.querySelector('.ph-row-label').textContent;
-    if (name === (_lastHarmony && _lastHarmony.name)) {
-      row.querySelectorAll('.ph-swatch').forEach((sw, i) => { sw.style.background = colors[i]; sw.title = colors[i]; });
-      row.querySelector('.ph-apply-btn').onclick = () => applyHarmony(name, colors);
-    }
+  Object.entries(HARMONIES).forEach(([name, fn], ri) => {
+    const hues = fn(hsl.h);
+    const colors = hues.map((hu, i) => {
+      const h = ((hu % 360) + 360) % 360;
+      const lOff = name === 'Monochromatic' ? (i - 3.5) * 8 + lJit : lJit;
+      const s = Math.max(20, Math.min(92, hsl.s + sJit));
+      const l = Math.max(22, Math.min(76, hsl.l + lOff));
+      return hslToHex(h, s, l);
+    });
+    const row = container.querySelectorAll('.ph-row')[ri];
+    if (!row) return;
+    row.querySelectorAll('.ph-swatch').forEach((sw, i) => { sw.style.background = colors[i]; sw.title = colors[i]; });
+    row.querySelector('.ph-apply-btn').onclick = () => applyHarmony(name, colors);
+    if (_lastHarmony && name === _lastHarmony.name) _lastHarmony = { name, colors };
   });
-  renderPalettePopover();
 }
 
 function hexToHSL(hex) {
