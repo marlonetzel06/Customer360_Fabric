@@ -251,8 +251,8 @@ let markerLayer    = null;
 function initLeaflet() {
   leafletMap = L.map('new-map', { zoomControl: true }).setView([20, 10], 2);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap',
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO',
     maxZoom: 10,
   }).addTo(leafletMap);
 
