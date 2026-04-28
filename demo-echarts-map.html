@@ -3,36 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Azure Map Preview – Canvas vs ECharts</title>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
-<!-- world.js aus echarts 4.x – ruft intern echarts.registerMap('world', ...) auf, kein fetch nötig -->
-<script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/world.js"></script>
+<title>Azure Map Preview – Canvas 2D vs Leaflet</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    background: #f0f0f0;
-    padding: 24px;
-    color: #333;
-  }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f0f0; padding: 24px; color: #333; }
   h1 { font-size: 18px; font-weight: 600; margin-bottom: 6px; color: #0F4C81; }
   .subtitle { font-size: 13px; color: #666; margin-bottom: 24px; }
 
   .controls {
-    background: white;
-    border-radius: 8px;
-    padding: 16px 20px;
-    margin-bottom: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    align-items: center;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    background: white; border-radius: 8px; padding: 16px 20px;
+    margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 20px;
+    align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,0.1);
   }
   .control-group { display: flex; align-items: center; gap: 8px; font-size: 13px; }
   .control-group label { font-weight: 500; color: #555; white-space: nowrap; }
-  .control-group input[type=color] { width: 36px; height: 28px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; padding: 2px; }
-  .control-group select { height: 28px; border: 1px solid #ccc; border-radius: 4px; padding: 0 8px; font-size: 13px; }
+  .control-group input[type=color] {
+    width: 36px; height: 28px; border: 1px solid #ccc;
+    border-radius: 4px; cursor: pointer; padding: 2px;
+  }
   .btn {
     height: 28px; padding: 0 14px;
     background: #0F4C81; color: white; border: none;
@@ -42,233 +32,172 @@
   .btn.secondary { background: #6c757d; }
   .btn.secondary:hover { background: #5a6268; }
 
-  .comparison {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
+  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   @media (max-width: 900px) { .comparison { grid-template-columns: 1fr; } }
 
-  .panel {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    overflow: hidden;
-  }
+  .panel { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); overflow: hidden; }
   .panel-header {
-    padding: 10px 16px;
-    font-size: 12px;
-    font-weight: 600;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding: 10px 16px; font-size: 12px; font-weight: 600;
+    border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;
   }
-  .panel-header .badge {
-    font-size: 10px;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-weight: 500;
-  }
+  .badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
   .badge.old { background: #fde8e8; color: #c0392b; }
   .badge.new { background: #e8f5e9; color: #2e7d32; }
-
   .panel-body { padding: 16px; }
 
   canvas#old-canvas { display: block; width: 100%; }
-  #new-chart { width: 100%; height: 360px; }
+  #new-map { width: 100%; height: 340px; border-radius: 4px; }
 
   .info-box {
-    margin-top: 12px;
-    padding: 10px 14px;
-    border-radius: 6px;
-    font-size: 12px;
-    line-height: 1.5;
+    margin-top: 12px; padding: 10px 14px; border-radius: 6px;
+    font-size: 12px; line-height: 1.5;
   }
-  .info-box.bad { background: #fff3f3; border-left: 3px solid #e74c3c; color: #555; }
+  .info-box.bad  { background: #fff3f3; border-left: 3px solid #e74c3c; color: #555; }
   .info-box.good { background: #f0f9f0; border-left: 3px solid #27ae60; color: #555; }
   .info-box strong { display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
 
   .detail-section {
-    margin-top: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    padding: 20px;
+    margin-top: 20px; background: white; border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1); padding: 20px;
   }
   .detail-section h2 { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: #0F4C81; }
   .code-block {
-    background: #1e1e1e;
-    color: #d4d4d4;
-    border-radius: 6px;
-    padding: 16px;
-    font-size: 12px;
-    font-family: 'Consolas', 'Courier New', monospace;
-    overflow-x: auto;
-    line-height: 1.6;
-    white-space: pre;
+    background: #1e1e1e; color: #d4d4d4; border-radius: 6px;
+    padding: 16px; font-size: 12px; font-family: 'Consolas', 'Courier New', monospace;
+    overflow-x: auto; line-height: 1.6; white-space: pre;
   }
-  .kw { color: #569cd6; }
+  .kw  { color: #569cd6; }
   .str { color: #ce9178; }
-  .cm { color: #6a9955; font-style: italic; }
+  .cm  { color: #6a9955; font-style: italic; }
   .num { color: #b5cea8; }
-  .prop { color: #9cdcfe; }
+  .prop{ color: #9cdcfe; }
 </style>
 </head>
 <body>
 
-<h1>Azure Map Preview – Canvas 2D vs Apache ECharts</h1>
-<p class="subtitle">Wie das Theme-Farbschema auf dem Map-Visual wirkt – aktuell (Canvas) vs. Vorschlag (ECharts)</p>
+<h1>Azure Map Preview – Canvas 2D vs Leaflet</h1>
+<p class="subtitle">Wie das Theme-Farbschema auf dem Map-Visual wirkt – aktuell (Canvas 2D) vs. Vorschlag (Leaflet + OSM)</p>
 
 <div class="controls">
   <div class="control-group">
-    <label>Primärfarbe</label>
+    <label>Farbe 1</label>
     <input type="color" id="color1" value="#0F4C81">
   </div>
   <div class="control-group">
-    <label>Sekundärfarbe</label>
+    <label>Farbe 2</label>
     <input type="color" id="color2" value="#1F8AC0">
   </div>
   <div class="control-group">
-    <label>Akzentfarbe</label>
+    <label>Farbe 3</label>
     <input type="color" id="color3" value="#3BBFCE">
   </div>
   <div class="control-group">
-    <label>4. Farbe</label>
+    <label>Farbe 4</label>
     <input type="color" id="color4" value="#70C1B3">
   </div>
   <div class="control-group">
-    <label>5. Farbe</label>
+    <label>Farbe 5</label>
     <input type="color" id="color5" value="#F4A261">
   </div>
-  <div class="control-group">
-    <label>Karte-Typ</label>
-    <select id="mapType">
-      <option value="bubble">Bubble Map (Azure Maps)</option>
-      <option value="choropleth">Choropleth (Filled Map)</option>
-      <option value="heatmap">Heatmap</option>
-    </select>
-  </div>
-  <button class="btn" onclick="updateCharts()">Aktualisieren</button>
   <button class="btn secondary" onclick="randomizeColors()">Zufallsfarben</button>
 </div>
 
 <div class="comparison">
-  <!-- Aktuell: Canvas 2D -->
+  <!-- Links: Canvas 2D (aktuell) -->
   <div class="panel">
     <div class="panel-header">
       Aktuell: Canvas 2D
       <span class="badge old">Alt</span>
     </div>
     <div class="panel-body">
-      <canvas id="old-canvas" width="480" height="320"></canvas>
+      <canvas id="old-canvas" width="560" height="340"></canvas>
       <div class="info-box bad">
         <strong>Einschränkungen</strong>
-        Vereinfachte Kontinent-Polygone (6 Formen), keine echten Ländergrenzen,
-        statische Bubble-Positionen, kein Hover/Tooltip, kein Zoom.
-        Zeigt nur grob ob Farben "passen" – nicht wie das Visual wirklich aussieht.
+        6 grobe Kontinent-Blobs, falsche Ländergrenzen, statische Bubble-Positionen,
+        kein Tooltip, kein Zoom — zeigt nur grob ob Farben passen.
       </div>
     </div>
   </div>
 
-  <!-- Neu: ECharts -->
+  <!-- Rechts: Leaflet (Vorschlag) -->
   <div class="panel">
     <div class="panel-header">
-      Neu: Apache ECharts
-      <span class="badge new">Vorschlag</span>
+      Vorschlag: Leaflet + OpenStreetMap
+      <span class="badge new">Neu</span>
     </div>
     <div class="panel-body">
-      <div id="new-chart"></div>
+      <div id="new-map"></div>
       <div class="info-box good">
         <strong>Vorteile</strong>
-        Echte Ländergrenzen (GeoJSON), interaktiver Tooltip, Zoom &amp; Pan,
-        live Theme-Updates ohne Reload, skaliert auf beliebige Größen.
-        Kein Power BI Account nötig, keine Azure-Abhängigkeit.
+        Echte Satelliten-/Straßenkarte (OSM-Tiles), korrekte Koordinaten,
+        interaktiver Tooltip, Zoom &amp; Pan, Bubble-Größe nach Datenwert.
+        Kein Power BI Account, kein Backend, kein GeoJSON-Download.
       </div>
     </div>
   </div>
 </div>
 
-<!-- Code-Beispiel -->
 <div class="detail-section">
   <h2>Integration ins Theme-Tool (Auszug)</h2>
-  <div class="code-block"><span class="cm">// AzureMapPreview.jsx – ECharts Bubble Map</span>
-<span class="kw">import</span> ReactECharts <span class="kw">from</span> <span class="str">'echarts-for-react'</span>;
-<span class="kw">import</span> worldJson <span class="kw">from</span> <span class="str">'./world.json'</span>;  <span class="cm">// ~200KB, einmalig gebundlet</span>
-echarts.registerMap(<span class="str">'world'</span>, worldJson);
+  <div class="code-block"><span class="cm">// AzureMapPreview.jsx – Leaflet Bubble Map</span>
+<span class="kw">import</span> { MapContainer, TileLayer, CircleMarker, Tooltip } <span class="kw">from</span> <span class="str">'react-leaflet'</span>;
 
 <span class="kw">function</span> <span class="prop">AzureMapPreview</span>({ theme }) {
   <span class="kw">const</span> colors = theme.dataColors;
 
-  <span class="kw">const</span> option = {
-    <span class="prop">backgroundColor</span>: theme.background ?? <span class="str">'#fff'</span>,
-    <span class="prop">geo</span>: {
-      <span class="prop">map</span>: <span class="str">'world'</span>,
-      <span class="prop">roam</span>: <span class="kw">true</span>,          <span class="cm">// Zoom + Pan</span>
-      <span class="prop">itemStyle</span>: {
-        <span class="prop">areaColor</span>: <span class="str">'#cce8f7'</span>,
-        <span class="prop">borderColor</span>: <span class="str">'#fff'</span>,
-        <span class="prop">borderWidth</span>: <span class="num">0.5</span>,
-      },
-      <span class="prop">emphasis</span>: { <span class="prop">itemStyle</span>: { <span class="prop">areaColor</span>: colors[<span class="num">1</span>] } },
-    },
-    <span class="prop">series</span>: [{
-      <span class="prop">type</span>: <span class="str">'scatter'</span>,
-      <span class="prop">coordinateSystem</span>: <span class="str">'geo'</span>,
-      <span class="prop">data</span>: SAMPLE_CITIES,     <span class="cm">// [{name, value:[lon,lat,size]}]</span>
-      <span class="prop">symbolSize</span>: (val) =&gt; Math.sqrt(val[<span class="num">2</span>]) * <span class="num">8</span>,
-      <span class="prop">itemStyle</span>: {
-        <span class="prop">color</span>: (params) =&gt; colors[params.dataIndex % colors.length],
-        <span class="prop">opacity</span>: <span class="num">0.85</span>,
-      },
-      <span class="prop">tooltip</span>: { <span class="prop">formatter</span>: (p) =&gt; `${p.name}: ${p.value[<span class="num">2</span>]}` },
-    }],
-  };
+  <span class="kw">return</span> (
+    &lt;MapContainer center={[<span class="num">20</span>, <span class="num">10</span>]} zoom={<span class="num">2</span>} style={{ height: <span class="str">'360px'</span> }}&gt;
+      &lt;TileLayer url=<span class="str">"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"</span> /&gt;
+      {CITIES.map((city, i) =&gt; (
+        &lt;CircleMarker
+          key={city.name}
+          center={[city.lat, city.lon]}
+          radius={Math.sqrt(city.value) * <span class="num">2.5</span>}
+          fillColor={colors[i % colors.length]}
+          color=<span class="str">"white"</span>
+          fillOpacity={<span class="num">0.85</span>}
+          weight={<span class="num">1.5</span>}
+        &gt;
+          &lt;Tooltip&gt;{city.name}: {city.value}&lt;/Tooltip&gt;
+        &lt;/CircleMarker&gt;
+      ))}
+    &lt;/MapContainer&gt;
+  );
+}
 
-  <span class="cm">// Bei Theme-Änderung: eChart.setOption(newOption) – kein Re-Mount nötig</span>
-  <span class="kw">return</span> &lt;ReactECharts option={option} style={{ height: <span class="str">'360px'</span> }} /&gt;;
-}</div>
+<span class="cm">// Theme-Änderung: colors-Prop updaten → React re-rendert → neue Farben</span>
+<span class="cm">// Kein applyTheme() API nötig, kein PBI-Token, kein Backend</span></div>
 </div>
 
 <script>
-// ─── Beispieldaten ───────────────────────────────────────────────────
 const CITIES = [
-  { name: 'New York',    coord: [-74.0, 40.7],  value: 120 },
-  { name: 'London',      coord: [-0.1, 51.5],   value: 95  },
-  { name: 'São Paulo',   coord: [-46.6, -23.5], value: 78  },
-  { name: 'Lagos',       coord: [3.4, 6.5],     value: 65  },
-  { name: 'Mumbai',      coord: [72.8, 19.0],   value: 88  },
-  { name: 'Tokyo',       coord: [139.7, 35.7],  value: 105 },
-  { name: 'Beijing',     coord: [116.4, 39.9],  value: 110 },
-  { name: 'Sydney',      coord: [151.2, -33.9], value: 55  },
-  { name: 'Cairo',       coord: [31.2, 30.1],   value: 47  },
-  { name: 'Berlin',      coord: [13.4, 52.5],   value: 60  },
-  { name: 'Mexico City', coord: [-99.1, 19.4],  value: 72  },
-  { name: 'Jakarta',     coord: [106.8, -6.2],  value: 83  },
+  { name: 'New York',    lat:  40.7, lon:  -74.0, value: 120 },
+  { name: 'London',      lat:  51.5, lon:   -0.1, value:  95 },
+  { name: 'São Paulo',   lat: -23.5, lon:  -46.6, value:  78 },
+  { name: 'Lagos',       lat:   6.5, lon:    3.4, value:  65 },
+  { name: 'Mumbai',      lat:  19.0, lon:   72.8, value:  88 },
+  { name: 'Tokyo',       lat:  35.7, lon:  139.7, value: 105 },
+  { name: 'Beijing',     lat:  39.9, lon:  116.4, value: 110 },
+  { name: 'Sydney',      lat: -33.9, lon:  151.2, value:  55 },
+  { name: 'Cairo',       lat:  30.1, lon:   31.2, value:  47 },
+  { name: 'Berlin',      lat:  52.5, lon:   13.4, value:  60 },
+  { name: 'Mexico City', lat:  19.4, lon:  -99.1, value:  72 },
+  { name: 'Jakarta',     lat:  -6.2, lon:  106.8, value:  83 },
 ];
 
-// Weltkarte – vereinfachtes GeoJSON mit echten Länderkonturen von echarts-built-in
-// Wir laden das von einem CDN für diese Demo
-let worldLoaded = false;
-let echartsInstance = null;
-
 function getColors() {
-  return [
-    document.getElementById('color1').value,
-    document.getElementById('color2').value,
-    document.getElementById('color3').value,
-    document.getElementById('color4').value,
-    document.getElementById('color5').value,
-  ];
+  return ['color1','color2','color3','color4','color5'].map(id =>
+    document.getElementById(id).value
+  );
 }
 
-// ─── Alte Canvas-Implementierung (aus pbi-json-designer.html) ────────
+// ── Canvas 2D (Original-Code aus pbi-json-designer.html) ────────────
 function drawOldCanvas() {
   const canvas = document.getElementById('old-canvas');
-  const ctx = canvas.getContext('2d');
+  const ctx    = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
   const colors = getColors();
-  const col = i => colors[i % colors.length];
+  const col      = i => colors[i % colors.length];
   const hexAlpha = (h, a) => {
     const r = parseInt(h.slice(1,3),16), g = parseInt(h.slice(3,5),16), b = parseInt(h.slice(5,7),16);
     return `rgba(${r},${g},${b},${a})`;
@@ -291,11 +220,10 @@ function drawOldCanvas() {
     'M572,136 L606,119 L611,61 L778,56 L953,89 L892,125 L833,183 L778,222 L789,247 L725,228 L700,186 L672,183 L622,147 L617,142 Z',
     'M861,283 L903,281 L925,328 L919,344 L903,356 L883,347 L819,339 L817,311 Z',
   ];
-
   const scX = W / 1000, scY = mapH / 500;
   ctx.save(); ctx.translate(0, mapY); ctx.scale(scX, scY);
   const lw = 1.5 / Math.min(scX, scY);
-  _CP.forEach((d, i) => {
+  _CP.forEach(d => {
     const p = new Path2D(d);
     ctx.fillStyle = '#8db87a';
     ctx.fill(p);
@@ -306,195 +234,71 @@ function drawOldCanvas() {
   const _cities = [
     {x:294,y:136,r:1.0},{x:500,y:108,r:0.8},{x:370,y:317,r:0.9},
     {x:508,y:233,r:0.7},{x:703,y:197,r:1.1},{x:822,y:139,r:1.2},
-    {x:889,y:150,r:0.9},{x:919,y:344,r:0.8}
+    {x:889,y:150,r:0.9},{x:919,y:344,r:0.8},
   ];
   _cities.forEach(({x, y, r}, i) => {
     ctx.fillStyle = hexAlpha(col(i), 0.85);
-    ctx.beginPath(); ctx.arc(x * scX, y * scY + mapY, 7 * r, 0, Math.PI * 2);
+    ctx.beginPath(); ctx.arc(x * scX, y * scY + mapY, 8 * r, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 0.8; ctx.stroke();
   });
 }
 
-// ─── ECharts-Implementierung ─────────────────────────────────────────
-function buildEchartsOption(colors, mapType) {
-  const baseGeoStyle = {
-    itemStyle: {
-      areaColor: '#d4e9c4',
-      borderColor: '#ffffff',
-      borderWidth: 0.7,
-    },
-    emphasis: {
-      disabled: false,
-      itemStyle: { areaColor: hexWithAlpha(colors[1], 0.5) }
-    },
-    label: { show: false },
-  };
+// ── Leaflet Map ──────────────────────────────────────────────────────
+let leafletMap     = null;
+let markerLayer    = null;
 
-  if (mapType === 'bubble') {
-    return {
-      backgroundColor: '#f0f8ff',
-      title: {
-        text: 'Azure Map',
-        left: 8, top: 4,
-        textStyle: { fontSize: 11, fontFamily: 'Segoe UI', fontWeight: 600, color: '#0F4C81' }
-      },
-      tooltip: {
-        trigger: 'item',
-        formatter: p => `<b>${p.name}</b><br/>Wert: ${p.value[2]}`,
-        textStyle: { fontSize: 12 }
-      },
-      geo: {
-        ...baseGeoStyle,
-        map: 'world',
-        roam: true,
-        top: 30, bottom: 4, left: 4, right: 4,
-      },
-      series: [{
-        type: 'scatter',
-        coordinateSystem: 'geo',
-        data: CITIES.map(c => ({
-          name: c.name,
-          value: [...c.coord, c.value],
-        })),
-        symbolSize: v => Math.sqrt(v[2]) * 5.5,
-        itemStyle: {
-          color: p => colors[p.dataIndex % colors.length],
-          opacity: 0.85,
-          borderColor: 'rgba(255,255,255,0.7)',
-          borderWidth: 1,
-        },
-        z: 5,
-      }],
-    };
-  }
+function initLeaflet() {
+  leafletMap = L.map('new-map', { zoomControl: true }).setView([20, 10], 2);
 
-  if (mapType === 'choropleth') {
-    // Choropleth: Länder einfärben nach Datenwert
-    const regions = [
-      {name:'United States',value:120}, {name:'United Kingdom',value:95},
-      {name:'Brazil',value:78}, {name:'Nigeria',value:65},
-      {name:'India',value:88}, {name:'Japan',value:105},
-      {name:'China',value:110}, {name:'Australia',value:55},
-      {name:'Egypt',value:47}, {name:'Germany',value:60},
-      {name:'Mexico',value:72}, {name:'Indonesia',value:83},
-    ];
-    const max = Math.max(...regions.map(r => r.value));
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 10,
+  }).addTo(leafletMap);
 
-    return {
-      backgroundColor: '#f0f8ff',
-      title: {
-        text: 'Filled Map',
-        left: 8, top: 4,
-        textStyle: { fontSize: 11, fontFamily: 'Segoe UI', fontWeight: 600, color: '#0F4C81' }
-      },
-      tooltip: {
-        trigger: 'item',
-        formatter: p => p.name + (p.value ? `: ${p.value}` : ': –'),
-      },
-      visualMap: {
-        min: 0, max,
-        inRange: { color: [lighten(colors[0], 0.7), colors[0]] },
-        text: ['Hoch','Niedrig'],
-        textStyle: { fontSize: 10, color: '#666' },
-        left: 'right', top: 'bottom',
-        itemWidth: 10, itemHeight: 60,
-      },
-      geo: {
-        ...baseGeoStyle,
-        map: 'world',
-        roam: true,
-        top: 30, bottom: 4, left: 4, right: 4,
-        itemStyle: { borderColor: '#fff', borderWidth: 0.7 },
-      },
-      series: [{
-        type: 'map',
-        geoIndex: 0,
-        data: regions,
-      }],
-    };
-  }
-
-  if (mapType === 'heatmap') {
-    return {
-      backgroundColor: '#0a1628',
-      title: {
-        text: 'Heatmap Map',
-        left: 8, top: 4,
-        textStyle: { fontSize: 11, fontFamily: 'Segoe UI', fontWeight: 600, color: '#aad4f5' }
-      },
-      tooltip: {
-        trigger: 'item',
-        formatter: p => `<b>${p.name}</b><br/>Wert: ${p.value[2]}`,
-      },
-      geo: {
-        map: 'world',
-        roam: true,
-        top: 30, bottom: 4, left: 4, right: 4,
-        itemStyle: {
-          areaColor: '#132a4e',
-          borderColor: '#1a3d6b',
-          borderWidth: 0.5,
-        },
-        emphasis: { disabled: true },
-      },
-      series: [{
-        type: 'effectScatter',
-        coordinateSystem: 'geo',
-        data: CITIES.map(c => ({ name: c.name, value: [...c.coord, c.value] })),
-        symbolSize: v => Math.sqrt(v[2]) * 5,
-        rippleEffect: { brushType: 'stroke', period: 4, scale: 3.5 },
-        itemStyle: {
-          color: p => colors[p.dataIndex % colors.length],
-          shadowBlur: 10,
-          shadowColor: p => colors[p.dataIndex % colors.length],
-        },
-        z: 5,
-      }],
-    };
-  }
+  markerLayer = L.layerGroup().addTo(leafletMap);
+  renderMarkers();
 }
 
-function hexWithAlpha(hex, alpha) {
-  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
-
-function lighten(hex, amount) {
-  const r = Math.min(255, parseInt(hex.slice(1,3),16) + Math.round(255 * amount));
-  const g = Math.min(255, parseInt(hex.slice(3,5),16) + Math.round(255 * amount));
-  const b = Math.min(255, parseInt(hex.slice(5,7),16) + Math.round(255 * amount));
-  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
-}
-
-// ─── Initialisierung ─────────────────────────────────────────────────
-function initECharts() {
-  const el = document.getElementById('new-chart');
-  echartsInstance = echarts.init(el);
-  // world.js (script-Tag) hat echarts.registerMap('world', ...) bereits aufgerufen
-  worldLoaded = true;
-  updateCharts();
-}
-
-function updateCharts() {
-  drawOldCanvas();
-  if (!worldLoaded || !echartsInstance) return;
+function renderMarkers() {
+  if (!markerLayer) return;
+  markerLayer.clearLayers();
   const colors = getColors();
-  const mapType = document.getElementById('mapType').value;
-  const option = buildEchartsOption(colors, mapType);
-  echartsInstance.setOption(option, true);
+
+  CITIES.forEach((city, i) => {
+    const color  = colors[i % colors.length];
+    const radius = Math.sqrt(city.value) * 2.2;
+
+    const circle = L.circleMarker([city.lat, city.lon], {
+      radius,
+      fillColor:   color,
+      color:       'white',
+      weight:      1.5,
+      fillOpacity: 0.85,
+    });
+
+    circle.bindTooltip(
+      `<b>${city.name}</b><br>Wert: ${city.value}`,
+      { direction: 'top', offset: [0, -radius] }
+    );
+
+    markerLayer.addLayer(circle);
+  });
+}
+
+// ── Updates ──────────────────────────────────────────────────────────
+function updateAll() {
+  drawOldCanvas();
+  renderMarkers();
 }
 
 function randomizeColors() {
   const hue = Math.floor(Math.random() * 360);
-  const palette = [0, 30, 55, 80, 140].map(offset => {
+  [0, 30, 55, 80, 140].forEach((offset, i) => {
     const h = (hue + offset) % 360;
-    return hslToHex(h, 65, 35 + Math.random() * 20);
+    document.getElementById(`color${i + 1}`).value = hslToHex(h, 65, 40 + Math.random() * 15);
   });
-  ['color1','color2','color3','color4','color5'].forEach((id, i) => {
-    document.getElementById(id).value = palette[i];
-  });
-  updateCharts();
+  updateAll();
 }
 
 function hslToHex(h, s, l) {
@@ -502,28 +306,20 @@ function hslToHex(h, s, l) {
   const a = s * Math.min(l, 1 - l);
   const f = n => {
     const k = (n + h / 30) % 12;
-    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-    return Math.round(255 * color).toString(16).padStart(2, '0');
+    return Math.round(255 * (l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1)))
+               .toString(16).padStart(2, '0');
   };
   return `#${f(0)}${f(8)}${f(4)}`;
 }
 
-// Auf Input-Events reagieren
-['color1','color2','color3','color4','color5','mapType'].forEach(id => {
-  document.getElementById(id).addEventListener('change', updateCharts);
-  document.getElementById(id).addEventListener('input', () => {
-    drawOldCanvas();
-    if (worldLoaded && echartsInstance) {
-      const colors = getColors();
-      const mapType = document.getElementById('mapType').value;
-      echartsInstance.setOption(buildEchartsOption(colors, mapType), true);
-    }
-  });
+// Farb-Inputs live updaten
+['color1','color2','color3','color4','color5'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateAll);
 });
 
 // Start
 drawOldCanvas();
-window.addEventListener('load', initECharts);
+window.addEventListener('load', initLeaflet);
 </script>
 </body>
 </html>
