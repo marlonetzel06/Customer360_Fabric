@@ -1480,7 +1480,6 @@ const VISUAL_SCHEMA = {
   pieChart:                       ['general','title','subheader','legend','labels','dataPoint','detail'],
   donutChart:                     ['general','title','subheader','legend','labels','dataPoint','innerRadius','detail'],
   treemap:                        ['general','title','subheader','legend','labels','categoryLabels','dataPoint'],
-  filledMap:                      ['general','title','subheader','legend','labels','dataPoint'],
   funnel:                         ['general','title','subheader','legend','labels','dataPoint'],
   gauge:                          ['general','title','subheader','dataLabels','gauge','target'],
   card:                           ['general','title','dataLabels','categoryLabels','wordWrap','background','border'],
@@ -1501,7 +1500,6 @@ const VISUAL_SCHEMA = {
   bookmarkNavigator:              ['general','title','text','fill','outline','shadow','border'],
   pageNavigator:                  ['general','title','text','fill','outline','shadow','border'],
   azureMap:                       ['general','title','legend','dataPoint','bubbles','background','border'],
-  shapeMap:                       ['general','title','legend','dataPoint','labels','background','border'],
   shape:                          ['general','title','fill','shapeOutline','background','border'],
   textbox:                        ['background','border','shadow'],
   actionButton:                   ['text','fill','outline','shadow','border'],
@@ -1543,8 +1541,6 @@ const VISUAL_LABELS = {
   "donutChart":                    "Donut Chart",
   "treemap":                       "Treemap",
   // Maps
-  "filledMap":                     "Filled Map",
-  "shapeMap":                      "Shape Map",
   "azureMap":                      "Azure Maps",
   // Cards & KPI
   "card":                          "Card",
@@ -2908,9 +2904,8 @@ function renderVisualPreview(vk, canvas, isModal) {
     return null;
   }
 
-  // ── Map / Filled Map ──
-  if (vk==='filledMap'||vk==='azureMap'||vk==='shapeMap') {
-    const isChoro = vk==='filledMap'||vk==='shapeMap';
+  // ── Azure Map ──
+  if (vk==='azureMap') {
     const mapY = titleH, mapH = H - titleH;
     ctx.fillStyle='#cce8f7'; ctx.fillRect(0,mapY,W,mapH); // ocean
     // Continent outlines in 1000×500 coord space: x=(lon+180)/360*1000, y=(90-lat)/180*500
@@ -2927,23 +2922,21 @@ function renderVisualPreview(vk, canvas, isModal) {
     const lw=1.5/Math.min(scX,scY);
     _CP.forEach((d,i)=>{
       const p=new Path2D(d);
-      ctx.fillStyle=isChoro?hexAlpha(col(i%THEME.dataColors.length),0.8):'#8db87a';
+      ctx.fillStyle='#8db87a';
       ctx.fill(p);
-      ctx.strokeStyle=isChoro?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.2)';
+      ctx.strokeStyle='rgba(0,0,0,0.2)';
       ctx.lineWidth=lw; ctx.stroke(p);
     });
     ctx.restore();
-    if (!isChoro) {
-      const _cities=[{x:294,y:136,r:1.0},{x:500,y:108,r:0.8},{x:370,y:317,r:0.9},
-                     {x:508,y:233,r:0.7},{x:703,y:197,r:1.1},{x:822,y:139,r:1.2},
-                     {x:889,y:150,r:0.9},{x:919,y:344,r:0.8}];
-      const rb=isModal?7:5;
-      _cities.forEach(({x,y,r},i)=>{
-        ctx.fillStyle=hexAlpha(col(i%THEME.dataColors.length),0.8);
-        ctx.beginPath(); ctx.arc(x*scX,y*scY+mapY,rb*r,0,Math.PI*2);
-        ctx.fill(); ctx.strokeStyle='rgba(255,255,255,0.7)'; ctx.lineWidth=0.8; ctx.stroke();
-      });
-    }
+    const _cities=[{x:294,y:136,r:1.0},{x:500,y:108,r:0.8},{x:370,y:317,r:0.9},
+                   {x:508,y:233,r:0.7},{x:703,y:197,r:1.1},{x:822,y:139,r:1.2},
+                   {x:889,y:150,r:0.9},{x:919,y:344,r:0.8}];
+    const rb=isModal?7:5;
+    _cities.forEach(({x,y,r},i)=>{
+      ctx.fillStyle=hexAlpha(col(i%THEME.dataColors.length),0.8);
+      ctx.beginPath(); ctx.arc(x*scX,y*scY+mapY,rb*r,0,Math.PI*2);
+      ctx.fill(); ctx.strokeStyle='rgba(255,255,255,0.7)'; ctx.lineWidth=0.8; ctx.stroke();
+    });
     return null;
   }
 
@@ -3705,7 +3698,7 @@ const VISUAL_GROUPS = {
   'Scatter & Bubble':['scatterChart','bubbleChart'],
   'Pie & Donut':['pieChart','donutChart','treemap','sunburstChart'],
   'KPI & Gauges':['gauge','kpiVisual','card','multiRowCard'],
-  'Maps':['azureMap','filledMap'],
+  'Maps':['azureMap'],
   'Tables & Matrix':['tableEx','matrix','pivotTable'],
   'Other':['slicerVisual','shape','actionButton','image','textbox','decompositionTree','ribbonChart','waterfallChart','funnel']
 };
