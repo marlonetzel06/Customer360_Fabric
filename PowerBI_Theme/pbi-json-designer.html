@@ -3697,17 +3697,24 @@ function showCopyDialog(fromKey) {
   _copyFromKey = fromKey;
   const list = document.getElementById('copy-dialog-list');
   list.innerHTML = '';
-  Object.entries(VISUAL_GROUPS).forEach(([groupName,keys]) => {
-    const siblings = keys.filter(k=>k!==fromKey&&VISUAL_LABELS[k]);
-    if (!siblings.length) return;
-    const gl=document.createElement('div'); gl.className='copy-group-label'; gl.textContent=groupName; list.appendChild(gl);
-    siblings.forEach(k=>{
-      const row=document.createElement('label'); row.className='copy-check-row';
-      const cb=document.createElement('input'); cb.type='checkbox'; cb.value=k; cb.name='copy-target';
-      const span=document.createElement('span'); span.textContent=VISUAL_LABELS[k]||k;
-      row.appendChild(cb); row.appendChild(span); list.appendChild(row);
-    });
-  });
+  const groupEntry = Object.entries(VISUAL_GROUPS).find(([,keys]) => keys.includes(fromKey));
+  if (groupEntry) {
+    const [groupName, keys] = groupEntry;
+    const siblings = keys.filter(k => k !== fromKey && VISUAL_LABELS[k]);
+    if (siblings.length) {
+      const gl=document.createElement('div'); gl.className='copy-group-label'; gl.textContent=groupName; list.appendChild(gl);
+      siblings.forEach(k=>{
+        const row=document.createElement('label'); row.className='copy-check-row';
+        const cb=document.createElement('input'); cb.type='checkbox'; cb.value=k; cb.name='copy-target';
+        const span=document.createElement('span'); span.textContent=VISUAL_LABELS[k]||k;
+        row.appendChild(cb); row.appendChild(span); list.appendChild(row);
+      });
+    } else {
+      list.innerHTML = '<div style="color:#888;font-size:12px;padding:8px 0">Keine verwandten Visuals in dieser Gruppe.</div>';
+    }
+  } else {
+    list.innerHTML = '<div style="color:#888;font-size:12px;padding:8px 0">Keine verwandten Visuals gefunden.</div>';
+  }
   document.getElementById('copy-dialog-overlay').classList.add('open');
 }
 

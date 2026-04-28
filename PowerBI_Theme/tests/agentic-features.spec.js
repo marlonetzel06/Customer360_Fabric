@@ -315,11 +315,28 @@ test('showCopyDialog: opens the overlay', async ({ page }) => {
   expect(isOpen).toBe(true);
 });
 
-test('showCopyDialog: populates dialog with visual checkboxes', async ({ page }) => {
+test('showCopyDialog: populates dialog with only same-group sibling checkboxes', async ({ page }) => {
   await page.evaluate(() => showCopyDialog('barChart'));
   await page.waitForTimeout(100);
-  const checkboxCount = await page.locator('#copy-dialog-list input[name="copy-target"]').count();
-  expect(checkboxCount).toBeGreaterThan(0);
+  const values = await page.evaluate(() =>
+    Array.from(document.querySelectorAll('#copy-dialog-list input[name="copy-target"]')).map(cb => cb.value)
+  );
+  // barChart belongs to "Bar & Column Charts" — only those siblings should appear
+  const barColumnGroup = ['clusteredBarChart','stackedBarChart','hundredPercentStackedBarChart',
+    'columnChart','clusteredColumnChart','stackedColumnChart','hundredPercentStackedColumnChart'];
+  expect(values.length).toBeGreaterThan(0);
+  values.forEach(v => expect(barColumnGroup).toContain(v));
+  // visuals from other groups must NOT appear
+  expect(values).not.toContain('lineChart');
+  expect(values).not.toContain('pieChart');
+  expect(values).not.toContain('tableEx');
+});
+
+test('showCopyDialog: shows message when visual has no group', async ({ page }) => {
+  await page.evaluate(() => showCopyDialog('unknownVisualXYZ'));
+  await page.waitForTimeout(100);
+  const msg = await page.evaluate(() => document.getElementById('copy-dialog-list').textContent.trim());
+  expect(msg).toContain('Keine verwandten Visuals');
 });
 
 test('copyVisualSettings: copies settings to target visuals', async ({ page }) => {
