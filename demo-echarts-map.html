@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Azure Map Preview – Canvas vs ECharts</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<!-- world.js aus echarts 4.x – ruft intern echarts.registerMap('world', ...) auf, kein fetch nötig -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/world.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -466,14 +468,10 @@ function lighten(hex, amount) {
 }
 
 // ─── Initialisierung ─────────────────────────────────────────────────
-async function initECharts() {
+function initECharts() {
   const el = document.getElementById('new-chart');
   echartsInstance = echarts.init(el);
-
-  // Welt-GeoJSON von ECharts CDN laden
-  const resp = await fetch('https://cdn.jsdelivr.net/npm/echarts@5.5.0/test/data/map/json/world.json');
-  const worldJson = await resp.json();
-  echarts.registerMap('world', worldJson);
+  // world.js (script-Tag) hat echarts.registerMap('world', ...) bereits aufgerufen
   worldLoaded = true;
   updateCharts();
 }
@@ -525,7 +523,7 @@ function hslToHex(h, s, l) {
 
 // Start
 drawOldCanvas();
-initECharts();
+window.addEventListener('load', initECharts);
 </script>
 </body>
 </html>
